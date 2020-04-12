@@ -1,0 +1,46 @@
+import React from "react";
+import Landing from "../layouts/Landing";
+import Dashboard from "../layouts/Dashboard";
+import Profile from "../components/Profile";
+import Home from "../components/Home";
+import Quizzer from "../components/Quizzer";
+import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
+import ResetPassword from "../components/ResetPassword";
+import Signup from "../components/Signup";
+
+const Routes = () => {
+  
+	return (
+		<Router>
+			<Switch>
+				<Route path="/Quizzer">
+					<Dashboard>
+						<Quizzer />
+					</Dashboard>
+				</Route>
+				<Route path="/profile">
+					<Dashboard>
+						<Profile />
+					</Dashboard>
+				</Route>
+				<Route path="/reset-password">
+					<Landing>
+						<ResetPassword />
+					</Landing>
+				</Route>
+				<Route path="/sign-up">
+					<Landing>
+						<Signup />
+					</Landing>
+				</Route>
+				<Route path="/">
+					<Landing>
+						<Home />
+					</Landing>
+				</Route>
+			</Switch>
+		</Router>
+	);
+}
+  
+export default Routes;

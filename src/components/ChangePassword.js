@@ -7,7 +7,7 @@ import {
   Row,
   Col
 } from "react-bootstrap";
-import {H1, H3, P} from "./StyledHeaders";
+import {H1, H3} from "./StyledHeaders";
 import StyledStrapForm from "./StyledStrapForm";
 
 const ChangePasswordForm = (props) =>{
@@ -19,7 +19,6 @@ const ChangePasswordForm = (props) =>{
 	const [confirm, setConfirm] = useState(false);
 
 	const onSubmit = event => {
-		const { password } = this.state;
 		props.firebase
 			.doPasswordUpdate(password)
 			.then(() => {
@@ -40,7 +39,6 @@ const ChangePasswordForm = (props) =>{
 			<Row>
 				<Col className="text-center">
 					<H1>Change Password</H1>
-					<P>Enter your email to reset your password.</P>
 				</Col>
 			</Row>
 			<Row>

@@ -96,7 +96,7 @@ const QuizReport = (props) => {
 	useEffect (()=>{
 		const getQuizLogs = async (qreport,areport) => {
 			let QLData = [];
-			let QuizLogData = await props.firebase.getQuizLogs(props.qreport,props.areport);
+			let QuizLogData = await props.firebase.getQuizLogs(props.qreport,props.areport,false);
 			for (let quizlog in QuizLogData){
 				QLData.push({
 					asked:QuizLogData[quizlog].asked,
@@ -108,6 +108,7 @@ const QuizReport = (props) => {
 					qCount:QuizLogData[quizlog].qCount
 				});
 			}
+
 			setReportData(QLData);
 		}
 

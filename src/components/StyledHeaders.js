@@ -10,6 +10,11 @@ const H3 = styled.h3`
 	color: ${process.env.REACT_APP_BLUE}
 `;
 
+const H3nb = styled.h3`
+	color: ${process.env.REACT_APP_BLUE}
+`;
+
+
 const P = styled.p`
 	background-color: rgba(255, 255, 255, .7);
 	color: ${process.env.REACT_APP_BLUE}
@@ -20,4 +25,4 @@ const Answer = styled.p`
 	color: #ff0000;
 `;
 
-export {H1, H3 ,P , Answer};
+export {H1, H3 , H3nb, P , Answer};

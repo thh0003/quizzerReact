@@ -1,0 +1,80 @@
+
+.hamburger {
+  cursor: pointer;
+  border-radius: 1px;
+  height: 6px;
+  width: 24px;
+  background: #ffffff;
+  display: block;
+  content: '';
+  transition: background .1s ease-in-out, color .1s ease-in-out;
+}
+
+
+.hamburger:before {
+	cursor: pointer;
+	border-radius: 1px;
+	height: 6px;
+	width: 24px;
+	background: #ffffff;
+	display: block;
+	content: '';
+	transition: background .1s ease-in-out, color .1s ease-in-out;
+  }
+
+.hamburger:after {
+	cursor: pointer;
+	border-radius: 1px;
+	height: 6px;
+	width: 24px;
+	background: #ffffff;
+	display: block;
+	content: '';
+	transition: background .1s ease-in-out, color .1s ease-in-out;
+  }
+.menu {
+	position: relative;
+	top: 20px;
+	right: -20px;
+	color: #ffffff;
+}
+.hamburger {
+  position: relative;
+  top: 20px;
+  right: -10px;
+}
+
+.hamburger:before {
+  top: -10px;
+  width: 24px;
+  position: absolute;
+}
+
+.hamburger:after {
+  bottom: -10px;
+  width: 24px;
+  position: absolute;
+}
+
+.sidebarToggle:hover .hamburger{
+    background: rgba(255, 255, 255, .7);
+}
+
+.sidebarToggle:hover .hamburger:before{
+    background: rgba(255, 255, 255, .7);
+}
+.sidebarToggle:hover .hamburger:after{
+    background: rgba(255, 255, 255, .7);
+}
+
+.hamburger-right {
+    right: 0;
+}
+
+.hamburger-right:before {
+    right: 0;
+}
+
+.hamburger-right:after {	
+	right: 0;
+}

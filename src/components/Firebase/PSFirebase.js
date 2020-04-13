@@ -140,8 +140,9 @@ class Firebase {
 		}
 	}
 
-	getQuizLogs = async (ureport,areport) => {
+	getQuizLogs = async (ureport,areport, convert=true) => {
 		try {
+			console.log(`Firebase->getQuizLogs: `);
 			const cuser = this.getUser();
 			const db = this.userdb;
 			var retQuizLogs = {};
@@ -155,12 +156,27 @@ class Firebase {
 
 			if(fbQuizLogs.empty){
 				return false;
-			} else {
-				for (var quizlog of fbQuizLogs.docs){
+			} else if (convert) {
+				for (let quizlog of fbQuizLogs.docs){
 					let fbquizlog = await qQuizLogRef.doc(quizlog.id).withConverter(QuizLogConverter).get()
 					let fbdata = await fbquizlog.data();
 					retQuizLogs[quizlog.id] = fbdata;
 				}
+				return retQuizLogs;
+			} else {
+				for (let quizlog of fbQuizLogs.docs){
+					let fbquizlog = await qQuizLogRef.doc(quizlog.id).get()
+					let fbdata = await fbquizlog.data();
+					fbdata.user = await this.getUserProfile(fbdata.uid);
+					let curQfile = await this.getQFile({qfid:fbdata.qfid});
+					curQfile = await curQfile.data();
+					for (let q in fbdata.questionLog){
+						fbdata.questionLog[q].Question = curQfile.questions[fbdata.questionLog[q].QuizFileQuestionNum].question;
+					}
+					retQuizLogs[quizlog.id] = fbdata;
+				}
+				
+				console.log(retQuizLogs);
 				return retQuizLogs;
 			}
 		} catch(error){
@@ -204,8 +220,29 @@ class Firebase {
 		.withConverter(userprofileConverter)
 		.set(new UserProfile(
 		  authUser.user.uid,
+		  authUser.user.displayName,
 		  'USER'
 		))
+	}
+
+	doUpdateUserDocument = async (uid,displayName,userRole) => {
+		try {
+			const db = this.userdb;
+			const varCheck = (typeof uid != 'undefined' || uid!=null) && (typeof displayName != 'undefined' || displayName!=null) && (typeof userRole != 'undefined' || userRole!=null)
+			if (varCheck){
+				db.collection("qUsers").doc(uid)
+					.withConverter(userprofileConverter)
+					.set(new UserProfile(
+					uid,
+					displayName,
+					userRole
+				))		
+			} else {
+				throw new Error (`Submitted Arguments are invalid uid: ${uid}, displayName: ${displayName}, userRole: ${userRole}`);
+			}
+		} catch (e){
+			throw e;
+		}
 	}
 
 	doSignInWithEmailAndPassword = async (email, password) => {

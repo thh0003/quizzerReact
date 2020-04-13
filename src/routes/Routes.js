@@ -1,12 +1,12 @@
 import React from "react";
 import Landing from "../layouts/Landing";
-import Dashboard from "../layouts/Dashboard";
 import Profile from "../components/Profile";
 import Home from "../components/Home";
 import Quizzer from "../components/Quizzer";
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 import ResetPassword from "../components/ResetPassword";
 import Signup from "../components/Signup";
+import DashboardToggle from "../layouts/DashboardToggle";
 
 const Routes = () => {
   
@@ -14,14 +14,14 @@ const Routes = () => {
 		<Router>
 			<Switch>
 				<Route path="/Quizzer">
-					<Dashboard>
+					<DashboardToggle>
 						<Quizzer />
-					</Dashboard>
+					</DashboardToggle>
 				</Route>
 				<Route path="/profile">
-					<Dashboard>
+					<DashboardToggle>
 						<Profile />
-					</Dashboard>
+					</DashboardToggle>
 				</Route>
 				<Route path="/reset-password">
 					<Landing>

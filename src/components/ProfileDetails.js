@@ -53,7 +53,7 @@ const ProfileDetailsInfo = (props) =>{
 		return (
 			<Card>
 				<Card.Header>
-				<Card.Title tag="h5" className="mb-0">
+				<Card.Title tag="h5" className="text-center mb-0">
 					Profile Details
 				</Card.Title>
 				</Card.Header>

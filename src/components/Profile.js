@@ -15,7 +15,7 @@ import {H1} from "./StyledHeaders";
 const Profile = () => (
 
 <Container fluid>
-	<H1>Profile</H1>
+	<H1 className='text-center'>Profile</H1>
 	<Row>
 	<Col>
 		<ProfileDetails />

@@ -9,6 +9,7 @@ import { connect, useDispatch } from "react-redux";
 import StyledNavBarRow from "./StyledNavBarRow";
 
 
+
 function NavbarForm(props) {
 	const history = useHistory();
 	const dispatch = useDispatch();

@@ -45,7 +45,7 @@ const Quiz = (props) => {
 				let newquiz = await new QuizLog(-1,props.authuser.uid,false,"WEB",props.numQuestions,0,0,props.timeLimit, Math.floor(new Date()),props.selectedQfile);
 				return newquiz;
 			}
-			
+
 			if (props.qstart===true){
 				createQuiz()
 					.then( (newQuiz) =>{

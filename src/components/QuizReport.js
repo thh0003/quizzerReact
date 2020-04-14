@@ -61,17 +61,6 @@ const QuizReport = (props) => {
 			let QuizLogData = await props.firebase.getQuizLogs(props.qreport,props.areport,false);
 
 			for (let quizlog in QuizLogData){
-			/*	
-				QLData.push({
-					asked:QuizLogData[quizlog].asked,
-					correct:QuizLogData[quizlog].correct,
-					duration:QuizLogData[quizlog].duration,
-					start_ts:QuizLogData[quizlog].start_ts,
-					qid:QuizLogData[quizlog].qid,
-					displayName:QuizLogData[quizlog].displayName,
-					qCount:QuizLogData[quizlog].qCount
-				});
-				*/
 				QLData.push(QuizLogData[quizlog]);
 			}
 
@@ -102,8 +91,6 @@ const QuizReport = (props) => {
 
 	const expandRow = {
 		renderer: (row, rowIndex) => {
-			console.log(`expandRow`)
-			console.log(row);
 			return (
 		  <QuizReportRow rowData={row.questionLog}/>
 		)},

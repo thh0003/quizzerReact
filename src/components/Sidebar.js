@@ -122,6 +122,7 @@ function SidebarSub (props) {
 					<StyledNavBarCol className={styles.sidebarNav}>
 							<Button style={buttonStyle} size="s" onClick={()=>{history.push('/profile')}} value="/profile" variant="primary">Profile</Button><br />
 							<Button style={buttonStyle} size="s" onClick={startQuiz} variant="primary">Start Quiz</Button><br />
+							<Button style={buttonStyle} size="s" onClick={()=>{history.push('/Help')}} variant="primary">Quiz Instructions</Button><br />
 							<Button style={buttonStyle} size="s" onClick={()=>{showReport(false)}} variant="primary">Quiz Report</Button><br />
 							<Button style={buttonStyle} size="s" onClick={()=>{history.push('/Quizzer')}} value="/Quizzer" variant="primary">Dashboard</Button><br />
 							<Button style={buttonStyle} size="s" onClick={onSignOutClick} value="/" variant="primary">Sign-Out</Button><br />

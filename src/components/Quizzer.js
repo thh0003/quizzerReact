@@ -21,6 +21,9 @@ function Quizzer(props) {
 	const [qFileAdded, setqFileAdded] = useState(false);
 	const [isLoaded,setIsLoaded] = useState(false);
 	const [error, setError] = useState(null);
+	const [loadError, setLoadError] = useState(null);
+	const [loadQfile, setLoadQfile] = useState(false);
+	const [confirmMsg, setConfirmMsg] = useState(false);
 	const [newqFile, setNewqFile] = useState(null);
 	const [timeLimit, setTimeLimit] = useState(props.timeLimit);
 	const [qstart, /*setqstart*/] = useState(props.qstart);
@@ -41,36 +44,49 @@ function Quizzer(props) {
 		return qfileDrop;
 	}
 
-	const loadNewQfile = async () => {
-		try{
-			//qFile=null, uid=null, qfid=null, questions=[], qFileName=''
-			if (newqFile){
-				let newQuestionFile = new QuestionFile(newqFile,props.authuser.uid,null,[],newqFile.name);
-				let loaded = await newQuestionFile.indexFile();
-				if (loaded){
-					await props.firebase.createQFile(newQuestionFile);
-					setselectedQFile(newQuestionFile);
-					setqFileAdded(true);
-					const nextQfilesState = produce(Qfiles, draftState =>{
-						draftState[newQuestionFile.qfid] = newQuestionFile;
-					});
-					
-					dispatch({
-						type:'UPDATE_QFILES',
-						Qfiles:nextQfilesState
-					});
-					dispatch({
-						type:'UPDATE_QFILE',
-						selectedQfile:newQuestionFile
-					});
+	useEffect (()=>{
+
+		const loadNewQfile = async () => {
+			try{
+				//qFile=null, uid=null, qfid=null, questions=[], qFileName=''
+				if (newqFile){
+					let newQuestionFile = new QuestionFile(newqFile,props.authuser.uid,null,[],newqFile.name);
+					let loaded = await newQuestionFile.indexFile();
+					if (loaded){
+						await props.firebase.createQFile(newQuestionFile);
+						setselectedQFile(newQuestionFile);
+						setqFileAdded(true);
+						const nextQfilesState = produce(Qfiles, draftState =>{
+							draftState[newQuestionFile.qfid] = newQuestionFile;
+						});
+						setLoadQfile(false);
+						setNewqFile(null);
+						dispatch({
+							type:'UPDATE_QFILES',
+							Qfiles:nextQfilesState
+						});
+						dispatch({
+							type:'UPDATE_QFILE',
+							selectedQfile:newQuestionFile
+						});
+						setConfirmMsg(`Question File ${newqFile.name} has been added`);
+					}
+				} else {
+					throw (new Error(`No Question File Specified`));
 				}
-			} else {
-				throw new Error(`No Question File Specified`);
+			} catch (error){
+				setLoadError(error);
+				setConfirmMsg(false);
+				setNewqFile(null);
+				setLoadQfile(false);
 			}
-		} catch (error){
-			console.error(`Quizzer->loadNewQfile Error: ${error.message}, ${error.stack}`)
 		}
-	}
+
+		if(loadQfile){
+			loadNewQfile();
+		}
+
+	},[dispatch,props.firebase,Qfiles,loadQfile,newqFile,props.authuser.uid]);
 
 	useEffect(()=>{
 		try{
@@ -153,6 +169,27 @@ function Quizzer(props) {
 		margin:0,
 		padding:0
 	}
+	let displayLoadError=null;
+	if (loadError){
+		displayLoadError = (
+			<Row>
+				<Col>
+					<P>Error: {loadError.message}</P>
+				</Col>
+			</Row>
+
+		);
+	}
+	let displayConfirmMsg=null;
+	if (confirmMsg){
+		displayConfirmMsg=(
+			<Row>
+				<Col>
+					<P>System Message: {confirmMsg}</P>
+				</Col>
+			</Row>			
+		);
+	}
 	
 	if (error) {
 		return (
@@ -179,17 +216,18 @@ function Quizzer(props) {
 								<Row xs={2}>
 									<Col className="text-right"><P><QuizTooltip tipID="1" header="Existing Question Files" tooltip="Select from the list of existing quiz files" /> Select Existing Question File: </P></Col>
 									<Col className="text-left">
-										<Form.Control as="select" onChange={onSelectQuizFileChange} defaultValue={(selectedQfile)?selectedQfile.qfid:''}>
+										<Form.Control as="select" key={(loadQfile)?'SelectQfileTrue':'SelectQfileFalse'} onChange={onSelectQuizFileChange} defaultValue={(selectedQfile)?selectedQfile.qfid:''}>
 											{createDropdown()}
 										</Form.Control>
 									</Col>
 									<Col className="text-right">
-										<QuizTooltip tipID="2" header="Upload New Question files" tooltip="Upload New Question files" /><Button onClick={loadNewQfile}>Load New Question File</Button>
+										<QuizTooltip tipID="2" header="Upload New Question files" tooltip="Upload New Question files" /><Button onClick={()=>{ setLoadQfile(true) }}>Load New Question File</Button>
 									</Col>
 									<Col className="text-left">
 										<Form.Control
 											type="file"
 											name="image"
+											key={(loadQfile)?'loadQfileTrue':'loadQfileFalse'}
 											placeholder="Select Question File"
 											onChange={onNewQfileChange}
 										/>
@@ -235,6 +273,8 @@ function Quizzer(props) {
 										</Form.Control>
 									</Col>
 								</Row>
+								{displayConfirmMsg}
+								{displayLoadError}
 							</Col>
 						</Row>
 						<Row className={sectionVisible.QUIZ}>

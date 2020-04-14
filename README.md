@@ -1,68 +1,122 @@
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+# Quizzer
+# Web and Progressive Web App (PWA) Quiz Application
 
-## Available Scripts
+### West Virginia Univeristy - CS - Software Portablility - Programming Assignment #4
 
-In the project directory, you can run:
+##### Quizzer - Description
 
-### `npm start`
+Quizzer is a Web Application and PWA which will take a file with questions and run a quiz based on those questions.
 
-Runs the app in the development mode.<br />
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+The url for the Web Application: https://quizzer.pgesoftware.com/
 
-The page will reload if you make edits.<br />
-You will also see any lint errors in the console.
+Progressive Web Application: If you access the url for the application on a mobile device, your device will prompt you to add the application to your home screen.
+Please allow it to do so.  Once the app is on your home screne select it and it will start.  Or you can use it in the browser.  The PWA will work online or offline.
 
-### `npm test`
+Sign-Up Process:
+1) Select the "Sign Up" on the main screen
+2) Enter in your Name, Email Address, Password, and Confirm your password.  Then select the Signup button
+3) You will then be redirected to the Quizzer Dashboard
 
-Launches the test runner in the interactive watch mode.<br />
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+Sign-In Process:
+1) Enter in your email and Password
+2) Select the "Sign In" button
+3) You will then be redirected to the Quizzer Dashboard
 
-### `npm run build`
+To Start a Quiz:
+1) Select an Existing Question File (Some sample files have been provided)
+2) Select how many questions you would to have in the quiz
+3) Select if you want a time limit for the quiz
+4) Select if you want the correct answer for missed questions to be displayed
+5) Select Start Quiz from the Navigation Bar on the left.  (Note: if the navigation bar is not visible select the "Menu" toggle in the upper left corner)
 
-Builds the app for production to the `build` folder.<br />
-It correctly bundles React in production mode and optimizes the build for the best performance.
+To Upload your own Quiz:
+1) A sample quiz file is available at https://quizzer.pgesoftware.com/static/media/sample.q.33b4f6e7.txt.  Please follow the sample format when uploading your quiz files
+2) Select the "Choose File" button and select your quiz file
+3) Select "Load New Question File" button and your file will begin to upload
+4) You will see "Question File <<filename>> has been added"
+5) You can then select the new quiz file from the "Select Existing Question" File dropdown.
 
-The build is minified and the filenames include the hashes.<br />
-Your app is ready to be deployed!
+Taking a Quiz:
+1) Once the quiz Starts There is a Quiz Progress section at the top of the quiz, and the Current Question is below.
+2) Select your answer
+3) Select "Submit Answer"
+4) The progress will be updated and if you selected to "SHOW" the correct answer to incorrect questions it will appear.
+5) The Next question will appear.
+6) If you wish to stop the Quiz selct StopQuiz
+7) Once you complete the Quiz a Quiz Summary will appear.
+8) If you want to save your quiz results select "Save Quiz Results"
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+Viewing Your Quiz History:
+1) Select "Quiz Report" from the Navigation Bar on the left. (Note: if the navigation bar is not visible select the "Menu" toggle in the upper left corner)
+2) To review the results for each question of the quiz select the + sign to expand the Selected Quiz.
+3) To close the Quiz Report select the "Close Report" button.
 
-### `npm run eject`
+Administrator Section: Currently there are 2 additional functions for Administrators
+1) Show all of the users quiz history
+   A) Select "Show Admin Report" from the Navigation Bar (Note: if the navigation bar is not visible select the "Menu" toggle in the upper left corner)
+   B) To review the results for each question of the quiz select the + sign to expand the Selected Quiz.
+   C) To close the Quiz Report select the "Close Report" button.
+2) Export the quiz history to a JSON file
+   A) Select "Export Admin Report" from the Navigation Bar (Note: if the navigation bar is not visible select the "Menu" toggle in the upper left corner)
+   B) A JSON representation of the quizes will be generated
+   C) Depending on your settings it will download automatically with the file name "quizLog.json" or prompt you to choose a location and name to save it.
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+#### Sample Quiz File Format
+* SAMPLE QUIZ QUESTIONS
+* Jim Mooney
+* CS 533
+* Fall 2011
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+* This is a question file for the quiz program.
+* Any line that begins with an asterisk should be ignored.
+* Totally blank lines should also be ignored.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+* The file consists of a sequence of questions.
+* Each question has the following form:
+*
+*	1. A line beginning with "@Q".
+*	2. Up to ten lines giving the text of the question.
+*	3. A line beginning with "@A"
+*	4. A line consisting of the integer value for the correct answer
+*	5. Up to ten lines giving answer choices, one line each.
+*	6. A line beginning with "@E".
+*
+* The question file has the form of a sequence of variable-length
+* text lines, Each containing 75 characters or fewer.  The character
+* code and the detailed form of the file (line terminators, etc.) are
+* those conventional for the system on which it is installed.
+*
+* The following example file contains two questions.  The first has
+* four possible answers; the correct answer is the second.  The second
+* has six possible answers; the correct answer is the fourth.
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+@QUESTIONS
+How many class days are there in this entire term?
+@ANSWERS
+2
+forty-one
+twenty-nine
+seems like hundreds
+who's counting?
+@END
 
-## Learn More
+@QUESTION
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+This is a long question which rambles on with no apparent end in sight.
+It has two purposes.  The first is to catch those of you who have not
+provided enough buffer space for a very long question.  The second is to
+ask you to figure out how many letters there are (not counting spaces or
+punctuation marks) in this entire paragraph.
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+@ANSWERS
+4
+509
+266
+1066
+263
+None of the above
+All of the above
+@END
+* Remember: blank lines and comments are ignored throughout!
 
-### Code Splitting
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/code-splitting
-
-### Analyzing the Bundle Size
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size
-
-### Making a Progressive Web App
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app
-
-### Advanced Configuration
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/advanced-configuration
-
-### Deployment
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/deployment
-
-### `npm run build` fails to minify
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify
+* END OF FILE

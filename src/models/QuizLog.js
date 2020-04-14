@@ -91,6 +91,7 @@ class QuizLog {
 	quizInit = async () => {
 		let quizQuestions = this.qfid.getQuestions();
 		let numQuestions = Object.keys(quizQuestions).length;
+		this.qCount = (numQuestions<this.qCount?numQuestions:this.qCount);
 		this.quizQuestionOrder = await this.shuffle(numQuestions);
 		return true;
 	}

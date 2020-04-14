@@ -54,66 +54,77 @@ class QuestionFile
 			var lineLen=0;
 			var questionNumber=0;
 			var gotCorrect = false;
+			let allLines;
 			
 			if (this.qFile===null&&this.uid===null&&this.qfid===null){
 				throw (new Error("No Questionfile Specified"));
 			} else if (this.qFile!==null){
-				this.rawQuestions = await this.readUploadedFileAsText(this.qFile);
-				var allLines = this.rawQuestions.split(/\r\n|\n/);
+				
+				try {
+					this.rawQuestions = await this.readUploadedFileAsText(this.qFile);	
+				} catch (error) {
+					throw(error);
+				}
+				
 
-				allLines.forEach( (line) =>{
-					if (!(line.slice(0,1) === process.env.REACT_APP_COMMENT) && line.trim().length !== 0) {
+				allLines = this.rawQuestions.split(/\r\n|\n/);		
+
+	//				allLines.forEach( (line) =>{
+				for (let x=0;x<allLines.length;x++){
+					if (!(allLines[x].slice(0,1) === process.env.REACT_APP_COMMENT) && allLines[x].trim().length !== 0) {
 						if (status === 0) {
 							// expecting a question
-							if (line.slice(0,2)===process.env.REACT_APP_Q_START) {
+							if (allLines[x].slice(0,2)===process.env.REACT_APP_Q_START) {
 								// question start
 								status = 1;
-								lineLen = line.replace("\\W", "").length;  // replace all non word characters
+								lineLen = allLines[x].replace("\\W", "").length;  // replace all non word characters
 								if (lineLen <= process.env.REACT_APP_MAX_CHARS_PER_LINE) {
 									questionNumber++;
 									this.questions.push(new Question(''));
 								} else {
-									status=0;
-									throw (new Error(`Question ${questionNumber+1} Length (${lineLen}) is greater than Maximum Question Length: ${process.env.REACT_APP_MAX_CHARS_PER_LINE}`));
+	//										status=0;
+									throw (new Error(`Question ${questionNumber+1}: Line ${allLines[x]} Length (${lineLen}) is greater than Maximum Question Length: ${process.env.REACT_APP_MAX_CHARS_PER_LINE}`));
 								}
 							} else {
-								console.error("IndexFile: unexpected input: " + line);
+								console.error("IndexFile: unexpected input: " + allLines[x]);
+								throw (new Error("IndexFile: unexpected input: " + allLines[x]));
 							}
 						} else if (status === 1) {
 
 							// reading question, checking for answer start
-							lineLen = line.replace("\\W", "").length;
+							lineLen = allLines[x].replace("\\W", "").length;
 							if (lineLen <= process.env.REACT_APP_MAX_CHARS_PER_LINE) {
-								if (line.slice(0,2) === process.env.REACT_APP_A_START) {
+								if (allLines[x].slice(0,2) === process.env.REACT_APP_A_START) {
 									// question end, answer start
 									status = 2;
 								} else {
 									// keep track of end of last part of question
 									let curQuestion = this.questions[questionNumber-1].getQuestion();
-									this.questions[questionNumber-1].setQuestion(curQuestion + line);
+									this.questions[questionNumber-1].setQuestion(curQuestion + allLines[x]);
 								}
 							} else {
-								throw (new Error("Question Length ("+lineLen+") is greater than Maximum Question Length: "+process.env.REACT_APP_MAX_CHARS_PER_LINE));
+
+								throw (new Error(`Question Line: ${allLines[x]}, Length ${lineLen} is greater than Maximum Question Length: ${process.env.REACT_APP_MAX_CHARS_PER_LINE}`));
 							}
 						} else {
 							// reading answer, checking for answer end
-							if (line.slice(0,2) === process.env.REACT_APP_A_END) {
+							if (allLines[x].slice(0,2) === process.env.REACT_APP_A_END) {
 								// answer end
 								status = 0;
 								gotCorrect=false;
 							} else {
 								// add answer offset
 								if (gotCorrect){
-									this.questions[questionNumber-1].addAnswer(line);
+									this.questions[questionNumber-1].addAnswer(allLines[x]);
 								} else {
 									gotCorrect = true;
-									this.questions[questionNumber-1].setCorrect(parseInt(line.trim()));
+									this.questions[questionNumber-1].setCorrect(parseInt(allLines[x].trim()));
 								}
 							}
 						}
 					}
-				});
-				
+				}
+					
 				if ( this.questions.length < 1 ) {
 					return false;
 				}
@@ -121,10 +132,8 @@ class QuestionFile
 			}
         } catch (e)
         {
-            console.error(`indexFile Error: ${e.message}, ${e.stack}`);
+			throw e;
         }
-
-        return false;
 	}
 	
     /**

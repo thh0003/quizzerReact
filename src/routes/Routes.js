@@ -7,6 +7,7 @@ import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 import ResetPassword from "../components/ResetPassword";
 import Signup from "../components/Signup";
 import DashboardToggle from "../layouts/DashboardToggle";
+import HelpFile from "../components/HelpFile";
 
 const Routes = () => {
   
@@ -27,6 +28,11 @@ const Routes = () => {
 					<Landing>
 						<ResetPassword />
 					</Landing>
+				</Route>
+				<Route path="/help">
+					<DashboardToggle>
+						<HelpFile />
+					</DashboardToggle>
 				</Route>
 				<Route path="/sign-up">
 					<Landing>

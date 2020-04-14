@@ -187,19 +187,28 @@ class Firebase {
 	doUpdateUserDisplayURL = async (displayURL) => {
 		let curUser = this.auth.currentUser;
 		if (curUser){
-			return await curUser.updateProfile({
+			await curUser.updateProfile({
 			displayName: curUser.displayName,
 			photoURL: displayURL
 			});
 		}
+		
+
 	}
 
-	doUpdateUserProfile = (profile) => {
+	doUpdateUserProfile = async (profile) => {
 		let curUser = this.auth.currentUser;
-		if (curUser!=null){
-			return curUser.updateProfile(profile);
-		} else {
-			throw new Error (`No Current User`);
+		try {
+			if (curUser!=null){
+				if(typeof profile.displayName!=='undefined' || profile.displayName!==null){
+					await this.doUpdateUserDocument (curUser.uid,profile.displayName,'USER')
+				}
+				await curUser.updateProfile(profile);
+			} else {
+				throw new Error (`No Current User`);
+			}
+		} catch (error){
+			throw(error);
 		}
 	}
 

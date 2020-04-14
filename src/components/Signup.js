@@ -1,7 +1,6 @@
 import React, {useState} from "react";
 import { withFirebase } from './Firebase';
 import { Link, withRouter, useHistory } from 'react-router-dom';
-import {useDispatch} from "react-redux";
 import { compose } from 'recompose';
 import {
   Button,
@@ -23,36 +22,23 @@ const SignupForm = (props) => {
 	const [confirmpassword,setConfirmPassword] = useState('');
 	const [error,setError] = useState('');
 	const history = useHistory();
-	const dispatch = useDispatch();
 
-	const onSubmit = (event) => {
-		props.firebase
-		  .doCreateUserWithEmailAndPassword(email, password)
-		  .then(authUser => {
-			props.firebase
-			  .doUpdateUserProfile({
-				displayName: username
-			  })
-			  .catch(error => {
-				this.setState({ error });
-			  });
-			  
-			  dispatch({
-				  type:`UPDATE_USERROLE`,
-				  userRole:authUser.user.role
-			  });
-			  setUsername('');
-			  setEmail('');
-			  setPassword('');
-			  setConfirmPassword('');
+	const onSubmit = async (event) => {
+		try {
+			let authuser = await props.firebase.doCreateUserWithEmailAndPassword(email, password);
+			if (authuser){
+				await props.firebase.doUpdateUserProfile({displayName: username});
+				setUsername('');
+				setEmail('');
+				setPassword('');
+				setConfirmPassword('');
 				history.push("/Quizzer");
-
-		  })
-		  .catch(error => {
+			}
+			event.preventDefault();
+		} catch (error){
 			setError( error );
-		  });
-		event.preventDefault();
-	  }
+		};
+	}
 
 	const isInvalid = password !== confirmpassword || password === '' || email === '' || username === '';
 

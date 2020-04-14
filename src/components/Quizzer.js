@@ -1,6 +1,6 @@
 import React, {useState, useEffect} from "react";
 import {connect, useDispatch} from "react-redux";
-import { Form,Row, Col, Button, Card } from "react-bootstrap";
+import { Form,Row, Col, Button, Card, Nav } from "react-bootstrap";
 import { H1,P } from "./StyledHeaders";
 import StyledStrapCard from "./StyledStrapCard";
 import {withFirebase} from "./Firebase";
@@ -10,8 +10,8 @@ import QuestionFile from "../models/QuestionFile";
 import Quiz from "./Quiz";
 import QuizReport from "./QuizReport";
 import QuizTooltip from "./QuizTooltip";
-import produce from "immer"
-
+import produce from "immer";
+import sampleQuiz from "../Qfiles/sample.q.txt";
 
 function Quizzer(props) {
 
@@ -148,7 +148,11 @@ function Quizzer(props) {
 			timeLimit:parseInt(e.target.value)
 		});
 	}
-	
+	const sampleLink={
+		fontSize:10,
+		margin:0,
+		padding:0
+	}
 	
 	if (error) {
 		return (
@@ -179,7 +183,9 @@ function Quizzer(props) {
 											{createDropdown()}
 										</Form.Control>
 									</Col>
-									<Col className="text-right"><QuizTooltip tipID="2" header="Upload New Question files" tooltip="Upload New Question files" /><Button onClick={loadNewQfile}>Load New Question File</Button></Col>
+									<Col className="text-right">
+										<QuizTooltip tipID="2" header="Upload New Question files" tooltip="Upload New Question files" /><Button onClick={loadNewQfile}>Load New Question File</Button>
+									</Col>
 									<Col className="text-left">
 										<Form.Control
 											type="file"
@@ -187,6 +193,7 @@ function Quizzer(props) {
 											placeholder="Select Question File"
 											onChange={onNewQfileChange}
 										/>
+										<Nav.Link style={sampleLink} href={sampleQuiz}>Sample Quiz File</Nav.Link>
 									</Col>
 								</Row>
 								<Row>

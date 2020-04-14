@@ -14,6 +14,7 @@ const config = {
   storageBucket: process.env.REACT_APP_storageBucket,
   messagingSenderId: process.env.REACT_APP_FB_messagingSenderId,
 };
+
 class Firebase {
 	constructor() {
 		app.initializeApp(config);
@@ -142,7 +143,6 @@ class Firebase {
 
 	getQuizLogs = async (ureport,areport, convert=true) => {
 		try {
-			console.log(`Firebase->getQuizLogs: `);
 			const cuser = this.getUser();
 			const db = this.userdb;
 			var retQuizLogs = {};
@@ -176,8 +176,6 @@ class Firebase {
 					}
 					retQuizLogs[quizlog.id] = fbdata;
 				}
-				
-				console.log(retQuizLogs);
 				return retQuizLogs;
 			}
 		} catch(error){
@@ -209,7 +207,7 @@ class Firebase {
 		try {
 			let authUser =  await this.auth.createUserWithEmailAndPassword(email, password);
 			await this.doCreateUserDocument(authUser);
-			authUser.user.role = 'USER';
+			return authUser;
 		} catch (e){
 			throw e;
 		}
@@ -248,8 +246,6 @@ class Firebase {
 
 	doSignInWithEmailAndPassword = async (email, password) => {
 		let authUser = await this.auth.signInWithEmailAndPassword(email, password);
-		let userProfile = await this.getUserProfile(authUser.user.uid);
-		authUser.user.role = userProfile.role;
 		return authUser
 	}
 

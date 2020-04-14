@@ -18,29 +18,21 @@ const SigninForm = (props) => {
 	const history = useHistory();
 	const dispatch = useDispatch();
 
-	const onSubmit = (event) => {
-		props.firebase
-		  .doSignInWithEmailAndPassword(email, password)
-		  .then((authUser) => {
-			dispatch({
-				type:`UPDATE_USERROLE`,
-				userRole:authUser.user.role
-			});
-			history.push("/Quizzer");
-		  })
-		  .catch(error => {
-			setError({ error });
-		  });
-		event.preventDefault();
-	}
-
-	useEffect(()=>{
-		try{
-
+	const onSubmit = async (event) => {
+		try {
+			let authuser = await  props.firebase.doSignInWithEmailAndPassword(email, password)
+		  	if (authuser) {
+				dispatch({
+					type:`UPDATE_USERROLE`,
+					userRole:authuser.user.role
+				});
+				history.push("/Quizzer");
+		  	}
+			event.preventDefault();
 		} catch (e){
+			setError( e );
 		}
-	}, []);
-
+	}
 
 	const isInvalid =  password === '' || email === '';
 

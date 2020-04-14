@@ -81,19 +81,23 @@ function SidebarSub (props) {
 		}
 	},[authUser, props.profileUpdate,dispatch]);
 
+	const buttonStyle ={
+		width:"100%"
+	}
+
+
 	let AdminMenu = null;
 	if (props.userrole==='ADMIN'){
 		AdminMenu = (
 				<StyledNavBarRow>
 					<StyledNavBarCol className={styles.sidebarNav}>
 						Administrator Actions<br />
-						<Button size="xs" onClick={()=>{showReport(true)}} variant="primary">Show Admin Report</Button>
-						<Button size="xs" onClick={exportAdminReport} variant="primary">Export Admin Report</Button>
+						<Button style={buttonStyle} size="s" onClick={()=>{showReport(true)}} variant="primary">Show Admin Report</Button>
+						<Button style={buttonStyle} size="s" onClick={exportAdminReport} variant="primary">Export Admin Report</Button>
 					</StyledNavBarCol>
 				</StyledNavBarRow>
 		);
 	}
-
 
     return (
       <nav
@@ -116,11 +120,11 @@ function SidebarSub (props) {
 				</StyledNavBarRow>
 				<StyledNavBarRow>
 					<StyledNavBarCol className={styles.sidebarNav}>
-							<Button size="xs" onClick={()=>{history.push('/profile')}} value="/profile" variant="primary">Profile</Button><br />
-							<Button size="xs" onClick={startQuiz} variant="primary">Start Quiz</Button><br />
-							<Button size="xs" onClick={()=>{showReport(false)}} variant="primary">Quiz Report</Button><br />
-							<Button size="xs" onClick={()=>{history.push('/Quizzer')}} value="/Quizzer" variant="primary">Dashboard</Button><br />
-							<Button size="xs" onClick={onSignOutClick} value="/" variant="primary">Sign-Out</Button><br />
+							<Button style={buttonStyle} size="s" onClick={()=>{history.push('/profile')}} value="/profile" variant="primary">Profile</Button><br />
+							<Button style={buttonStyle} size="s" onClick={startQuiz} variant="primary">Start Quiz</Button><br />
+							<Button style={buttonStyle} size="s" onClick={()=>{showReport(false)}} variant="primary">Quiz Report</Button><br />
+							<Button style={buttonStyle} size="s" onClick={()=>{history.push('/Quizzer')}} value="/Quizzer" variant="primary">Dashboard</Button><br />
+							<Button style={buttonStyle} size="s" onClick={onSignOutClick} value="/" variant="primary">Sign-Out</Button><br />
 					</StyledNavBarCol>
 				</StyledNavBarRow>
 				{AdminMenu}

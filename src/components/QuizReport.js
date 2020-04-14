@@ -8,6 +8,7 @@ import {withFirebase} from "./Firebase";
 import { withAuthUser } from './Session';
 import {connect, useDispatch} from "react-redux";
 import { compose } from 'recompose';
+import QuizReportRow from './QuizReportRow';
 
 
 const timeFormatter = (time) => {
@@ -35,7 +36,120 @@ const Unix_timestamp = function(t)
     return time;
 };
 
-const columns = [
+const QuizReport = (props) => {
+
+	const [reportData, setReportData] = useState(false);
+	const [isLoaded, setIsLoaded] = useState(false);
+	const [error, setError] = useState(null);
+	const [hoverIdx, setHoverIdx] = useState(null);
+	const dispatch = useDispatch();
+
+	const closeReport = () => {	
+		dispatch ({
+			type: 'UPDATE_REPORTS',
+			qreport:false,
+			areport:false
+		});
+
+		setReportData(false);
+		setIsLoaded(false);
+	}
+
+	useEffect (()=>{
+		const getQuizLogs = async (qreport,areport) => {
+			let QLData = [];
+			let QuizLogData = await props.firebase.getQuizLogs(props.qreport,props.areport,false);
+
+			for (let quizlog in QuizLogData){
+			/*	
+				QLData.push({
+					asked:QuizLogData[quizlog].asked,
+					correct:QuizLogData[quizlog].correct,
+					duration:QuizLogData[quizlog].duration,
+					start_ts:QuizLogData[quizlog].start_ts,
+					qid:QuizLogData[quizlog].qid,
+					displayName:QuizLogData[quizlog].displayName,
+					qCount:QuizLogData[quizlog].qCount
+				});
+				*/
+				QLData.push(QuizLogData[quizlog]);
+			}
+
+			setReportData(QLData);
+		}
+
+		try{
+			if (props.areport && props.qreport)	{
+				dispatch ({
+					type: 'UPDATE_REPORTS',
+					qreport:false,
+					areport:true
+				});
+			} else if (props.areport){
+				getQuizLogs(props.qreport,props.areport).then(()=>{
+					setIsLoaded(true);
+				})
+			} else if (props.qreport) {
+				getQuizLogs(props.qreport,props.areport).then(()=>{
+					setIsLoaded(true);
+				})
+			}
+		} catch(e){
+			setIsLoaded(true);
+			setError(e);
+		}
+	},[props.qreport,props.areport,dispatch,props.firebase]);
+
+	const expandRow = {
+		renderer: (row, rowIndex) => {
+			console.log(`expandRow`)
+			console.log(row);
+			return (
+		  <QuizReportRow rowData={row.questionLog}/>
+		)},
+		showExpandColumn: true,
+		expandByColumnOnly: true
+	};
+
+	const actionFormater = (cell, row, rowIndex, { hoverIdx }) => {
+		if ((hoverIdx !== null || hoverIdx !== undefined) && hoverIdx === rowIndex) {
+		  return (
+			<div
+			  style={ { width: '20px', height: '20px', backgroundColor: process.env.REACT_APP_BLUE } }
+			/>
+		  );
+		}
+		return (
+		  <div
+			style={ { width: '20px', height: '20px' } }
+		  />
+		);
+	}
+	
+	const rowEvents = {
+		onMouseEnter: (e, row, rowIndex) => {
+		  setHoverIdx(rowIndex);
+		},
+		onMouseLeave: () => {
+			setHoverIdx(null);
+		}
+	}
+	
+	const rowStyle = (row, rowIndex) => {
+		row.index = rowIndex;
+		const style = {};
+		if (rowIndex % 2 === 0) {
+		  style.backgroundColor = 'transparent';
+		} else {
+		  style.backgroundColor = 'rgba(54, 163, 173, .10)';
+		}
+		style.borderTop = 'none';
+	
+		return style;
+	}
+
+	
+	const columns = [
 		{
 			dataField: "qCount",
 			text: "Total Questions",
@@ -69,73 +183,27 @@ const columns = [
 			sort: true,
 		},
 		{
-			dataField: "uid",
-			text: "User ID",
+			dataField: "displayName",
+			text: "User",
 			sort: true,
+		},
+		{
+			text: '',
+			isDummyField: true,
+			formatter: actionFormater,
+			formatExtraData: { hoverIdx: hoverIdx },
+			headerStyle: { width: '50px' },
+			style: { height: '30px' }
 		}	
 	];
 
-const QuizReport = (props) => {
-
-	const [reportData, setReportData] = useState(false);
-	const [isLoaded, setIsLoaded] = useState(false);
-	const [error, setError] = useState(null);
-	const dispatch = useDispatch();
-
-	const closeReport = () => {	
-		dispatch ({
-			type: 'UPDATE_REPORTS',
-			qreport:false,
-			areport:false
-		});
-
-		setReportData(false);
-		setIsLoaded(false);
-	}
-
-	useEffect (()=>{
-		const getQuizLogs = async (qreport,areport) => {
-			let QLData = [];
-			let QuizLogData = await props.firebase.getQuizLogs(props.qreport,props.areport,false);
-			for (let quizlog in QuizLogData){
-				QLData.push({
-					asked:QuizLogData[quizlog].asked,
-					correct:QuizLogData[quizlog].correct,
-					duration:QuizLogData[quizlog].duration,
-					start_ts:QuizLogData[quizlog].start_ts,
-					qid:QuizLogData[quizlog].qid,
-					uid:QuizLogData[quizlog].uid,
-					qCount:QuizLogData[quizlog].qCount
-				});
-			}
-
-			setReportData(QLData);
-		}
-
-		try{
-			if (props.areport && props.qreport)	{
-				dispatch ({
-					type: 'UPDATE_REPORTS',
-					qreport:false,
-					areport:true
-				});
-			} else if (props.areport){
-				getQuizLogs(props.qreport,props.areport).then(()=>{
-					setIsLoaded(true);
-				})
-			} else if (props.qreport) {
-				getQuizLogs(props.qreport,props.areport).then(()=>{
-					setIsLoaded(true);
-				})
-			}
-		} catch(e){
-			setIsLoaded(true);
-			setError(e);
-		}
-	},[props.qreport,props.areport,dispatch,props.firebase]);
+	const quizReportStyle={
+		fontSize:10,
+		textAlign:"left"
+	};
 
 	if (error) {
-		return (
+	return (
 			<StyledStrapCard>
 				<Card.Title><H1>Error: {error.message}</H1></Card.Title>
 			</StyledStrapCard>
@@ -156,7 +224,7 @@ const QuizReport = (props) => {
 						</Col>
 					</Row>
 					<Row>
-						<Col>
+						<Col style={quizReportStyle}>
 							<BootstrapTable
 								keyField="qid"
 								headerClasses="bg-primary text-white"
@@ -167,6 +235,9 @@ const QuizReport = (props) => {
 								columns={columns}
 								bootstrap4
 								bordered={false}
+								rowStyle={ rowStyle }
+								rowEvents={ rowEvents }
+								expandRow={ expandRow }
 								pagination={paginationFactory({
 									sizePerPage: 25,
 									sizePerPageList: [5, 10, 25, 50]

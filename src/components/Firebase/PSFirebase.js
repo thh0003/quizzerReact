@@ -167,7 +167,8 @@ class Firebase {
 				for (let quizlog of fbQuizLogs.docs){
 					let fbquizlog = await qQuizLogRef.doc(quizlog.id).get()
 					let fbdata = await fbquizlog.data();
-					fbdata.user = await this.getUserProfile(fbdata.uid);
+					let quizUser = await this.getUserProfile(fbdata.uid);
+					fbdata.displayName = quizUser.displayName;
 					let curQfile = await this.getQFile({qfid:fbdata.qfid});
 					curQfile = await curQfile.data();
 					for (let q in fbdata.questionLog){

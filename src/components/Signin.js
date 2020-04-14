@@ -34,13 +34,20 @@ const SigninForm = (props) => {
 		event.preventDefault();
 	}
 
+	useEffect(()=>{
+		try{
+
+		} catch (e){
+		}
+	}, []);
+
+
 	const isInvalid =  password === '' || email === '';
 
 	return (
 		<React.Fragment>
 			<StyledAuthStrapCard>
 				<Card.Body>
-					<h2>Welcome back!</h2>
 					<StyledStrapForm>
 						<p className="lead">Sign in to your account to continue</p>
 						<Form.Group>

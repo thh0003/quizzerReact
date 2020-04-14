@@ -21,7 +21,6 @@ function Quizzer(props) {
 	const [qFileAdded, setqFileAdded] = useState(false);
 	const [isLoaded,setIsLoaded] = useState(false);
 	const [error, setError] = useState(null);
-//	const [qfileDropdown, setqfileDropdown] = useState([]);
 	const [newqFile, setNewqFile] = useState(null);
 	const [timeLimit, setTimeLimit] = useState(props.timeLimit);
 	const [qstart, /*setqstart*/] = useState(props.qstart);
@@ -173,7 +172,7 @@ function Quizzer(props) {
 								<Row>
 									<Col><H1 className="text-left">Quiz Options</H1></Col>
 								</Row>
-								<Row>
+								<Row xs={2}>
 									<Col className="text-right"><P><QuizTooltip tipID="1" header="Existing Question Files" tooltip="Select from the list of existing quiz files" /> Select Existing Question File: </P></Col>
 									<Col className="text-left">
 										<Form.Control as="select" onChange={onSelectQuizFileChange} defaultValue={(selectedQfile)?selectedQfile.qfid:''}>

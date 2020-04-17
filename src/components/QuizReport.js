@@ -9,6 +9,20 @@ import { withAuthUser } from './Session';
 import {connect, useDispatch} from "react-redux";
 import { compose } from 'recompose';
 import QuizReportRow from './QuizReportRow';
+import {withTranslator} from './Translator';
+
+const initialState = {	
+	loading:"Loading ...",
+	quizReport:"Quiz Report",
+	closeReport:"Close Report",
+	qCount:"Total Questions",
+	asked:"Questions Asked",
+	correct:"Answered Correct",
+	duration:"Quiz Duration",
+	date:"Quiz Date",
+	qid:"Quiz ID",
+	user:"User",
+};
 
 
 const timeFormatter = (time) => {
@@ -43,6 +57,25 @@ const QuizReport = (props) => {
 	const [error, setError] = useState(null);
 	const [hoverIdx, setHoverIdx] = useState(null);
 	const dispatch = useDispatch();
+	const [componentText,setComponentText] = useState(initialState);
+	const [isTransLoaded,setIsTransLoaded] = useState(false);
+
+	useEffect (()=>{
+		let translateList = initialState;
+		for(let x=0;x<reportData.length;x++){
+			for(let q in reportData[x].questionLog){
+				let curQuestionID = `${reportData[x].qfid}_${q}`;
+				if(typeof translateList[curQuestionID]==='undefined'){
+					translateList[curQuestionID] = reportData[x].questionLog[q].Question;
+				}
+			}
+		}
+		props.translator.getCompTranslation(translateList)
+			.then ((translation)=>{
+				setComponentText(translation);
+				setIsTransLoaded(true);
+			});
+	},[props.translator,reportData]);
 
 	const closeReport = () => {	
 		dispatch ({
@@ -63,7 +96,7 @@ const QuizReport = (props) => {
 			for (let quizlog in QuizLogData){
 				QLData.push(QuizLogData[quizlog]);
 			}
-
+			console.log(QLData);
 			setReportData(QLData);
 		}
 
@@ -91,8 +124,12 @@ const QuizReport = (props) => {
 
 	const expandRow = {
 		renderer: (row, rowIndex) => {
+			let curQuestionLog=row.questionLog;
+			for (let q in curQuestionLog){
+				curQuestionLog[q].Question = componentText[`${row.qfid}_${q}`];
+			}
 			return (
-		  <QuizReportRow rowData={row.questionLog}/>
+		  <QuizReportRow rowData={curQuestionLog}/>
 		)},
 		showExpandColumn: true,
 		expandByColumnOnly: true
@@ -139,39 +176,39 @@ const QuizReport = (props) => {
 	const columns = [
 		{
 			dataField: "qCount",
-			text: "Total Questions",
+			text: componentText.qCount,
 			sort: true,
 		},
 		{
 			dataField: "asked",
-			text: "Questions Asked",
+			text: componentText.asked,
 			sort: true,
 		},
 		{
 			dataField: "correct",
-			text: "Answered Correct",
+			text: componentText.correct,
 			sort: true
 		},
 		{
 			dataField: "duration",
-			text: "Quiz Duration",
+			text: componentText.duration,
 			sort: true,
 			formatter: timeFormatter,
 		},        
 		{
 			dataField: "start_ts",
-			text: "Quiz Date",
+			text: componentText.date,
 			sort: true,
 			formatter: Unix_timestamp,
 		},
 		{
 			dataField: "qid",
-			text: "Quiz ID",
+			text: componentText.qid,
 			sort: true,
 		},
 		{
 			dataField: "displayName",
-			text: "User",
+			text: componentText.user,
 			sort: true,
 		},
 		{
@@ -195,10 +232,10 @@ const QuizReport = (props) => {
 				<Card.Title><H1>Error: {error.message}</H1></Card.Title>
 			</StyledStrapCard>
 			);
-	} else if (!isLoaded){
+	} else if (!isLoaded || !isTransLoaded){
 		return (
 			<StyledStrapCard>
-				<Card.Title><H1>Loading ...</H1></Card.Title>
+				<Card.Title><H1>{componentText.loading}</H1></Card.Title>
 			</StyledStrapCard>		
 		);
 	} else {
@@ -207,7 +244,7 @@ const QuizReport = (props) => {
 				<React.Fragment>
 					<Row>
 						<Col className="text-center">
-							<P>QuizReport</P>
+							<P>{componentText.quizReport}</P>
 						</Col>
 					</Row>
 					<Row>
@@ -234,7 +271,7 @@ const QuizReport = (props) => {
 					</Row>
 					<Row>
 						<Col className="text-center">
-							<Button size="xs" onClick={closeReport} variant="primary">Close Report</Button>
+							<Button size="xs" onClick={closeReport} variant="primary">{componentText.closeReport}</Button>
 						</Col>
 					</Row>			
 				</React.Fragment>
@@ -243,7 +280,7 @@ const QuizReport = (props) => {
 			return (
 				<Row>
 					<Col className="text-center">
-						<P>QuizReport</P>
+						<P>{componentText.quizReport}</P>
 					</Col>
 				</Row>			
 			);
@@ -251,7 +288,7 @@ const QuizReport = (props) => {
 	}
 }
 
-export default compose(withFirebase, withAuthUser, connect(store => ({
+export default compose(withFirebase, withAuthUser, withTranslator, connect(store => ({
 	qstart: store.quizzer.qstart,
 	qreport: store.quizzer.qreport,
 	areport: store.quizzer.areport,

@@ -1,9 +1,23 @@
-import React from "react";
+import React, {useState, useEffect} from "react";
 import { Row, Col, Container } from "react-bootstrap";
 import {P} from "./StyledHeaders";
+import {withTranslator} from './Translator';
+
+const initialState = {	
+	submitted:"Submitted Answer",
+	correct:"Correct Answer",
+};
 
 const QuizReportRow = (props) => {
 	const rowData = props.rowData;
+	const [componentText,setComponentText] = useState(initialState);
+
+	useEffect (()=>{
+		props.translator.getCompTranslation(initialState)
+			.then ((translation)=>{
+				setComponentText(translation);
+			});
+	},[props.translator]);
 
 	const quizReportStyle={
 		fontSize:10,
@@ -41,15 +55,13 @@ const QuizReportRow = (props) => {
 						<Col style={quizReportStyle}>{`${rowData[question].QuestionNumber}) ${rowData[question].Question}`}</Col>
 					</Row>
 					<Row style={isCorrect}>
-						<Col>{`Submitted Answer: ${submittedAns}`}</Col>
-						<Col>{`Correct Answer: ${correctAns}`}</Col>
+						<Col>{`${componentText.submitted}: ${submittedAns}`}</Col>
+						<Col>{`${componentText.correct}: ${correctAns}`}</Col>
 					</Row>
 				</Container>
 			);
 			quizLog.push(questionRender)
 		}
-		
-		
 
 		return (
 			<React.Fragment>
@@ -69,8 +81,7 @@ const QuizReportRow = (props) => {
 			</Row>			
 		);
 	}
-
 }
 
-export default QuizReportRow;
+export default withTranslator(QuizReportRow);
 

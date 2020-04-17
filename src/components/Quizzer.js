@@ -12,6 +12,27 @@ import QuizReport from "./QuizReport";
 import QuizTooltip from "./QuizTooltip";
 import produce from "immer";
 import sampleQuiz from "../Qfiles/sample.q.txt";
+import {withTranslator} from './Translator';
+
+const initialState = {	
+	loading:" Loading ...",
+	header:"Quiz Options",
+	selectQuiz:" Select Existing Question File",
+	selectQuizTT:"Select from the list of existing quiz files",
+	uploadQuiz:"Load New Question File",
+	uploadQuizTT:"Upload New Question files",
+	sampleQuizLink:"Sample Quiz File",
+	numQuestTT:"# of Questions in the quiz",
+	numQuest:"# of Questions (Default: 10 questions, Max 100 Questions)",
+	quizTimeLimit:"Quiz Time Limit (Default: no limit, Max: 3600 seconds)",
+	quizTimeLimitTT:"Select the Time Limit to complete the quiz. If 0 is selected there is not a time limit",
+	quizTimeLimitTTHeader:"Quiz Time Limit",
+	quizAnswers:"Display Correct Answers",
+	quizAnswersTT:"If set to 'SHOW' the correct answer to a missed question will be displayed.",
+	quizAnswersTTHeader:"Display Correct Answer",
+	show:"SHOW",
+	hide:"HIDE"
+};
 
 function Quizzer(props) {
 
@@ -29,7 +50,21 @@ function Quizzer(props) {
 	const [qstart, /*setqstart*/] = useState(props.qstart);
 	const [showAnswers, setShowAnswers] = useState(props.showAnswers);
 	const sectionVisible = props.sectionVisible;
+	const [componentText,setComponentText] = useState(initialState);
+	const [isTransLoaded,setIsTransLoaded] = useState(false);
+
 	const dispatch = useDispatch();
+
+	useEffect (()=>{
+		let translateList = initialState;
+		translateList.showAnswers = showAnswers;
+		props.translator.getCompTranslation(translateList)
+			.then ((translation)=>{
+				setComponentText(translation);
+				setIsTransLoaded(true);
+			});
+	},[props.translator,showAnswers]);
+
 
 	const createDropdown = ()=>{
 		let qfileDrop=[];
@@ -126,6 +161,7 @@ function Quizzer(props) {
 		}
 	}, [selectedQfile,qFileAdded,qstart, dispatch,props.firebase,Qfiles]);
 
+
 	const onNewQfileChange = event => {
         if (event.target.files[0]){
 			setNewqFile(event.target.files[0]);
@@ -197,10 +233,10 @@ function Quizzer(props) {
 				<Card.Title><H1>Error: {error.message}</H1></Card.Title>
 			</StyledStrapCard>
 			);
-	} else if (!isLoaded){
+	} else if (!isLoaded || !isTransLoaded){
 		return (
 			<StyledStrapCard>
-				<Card.Title><H1>Loading ...</H1></Card.Title>
+				<Card.Title><H1>{componentText.loading}</H1></Card.Title>
 			</StyledStrapCard>		
 		);
 	} else {
@@ -211,17 +247,17 @@ function Quizzer(props) {
 						<Row className={sectionVisible.SETTINGS}>
 							<Col>
 								<Row>
-									<Col><H1 className="text-left">Quiz Options</H1></Col>
+									<Col><H1 className="text-left">{componentText.header}</H1></Col>
 								</Row>
 								<Row xs={2}>
-									<Col className="text-right"><P><QuizTooltip tipID="1" header="Existing Question Files" tooltip="Select from the list of existing quiz files" /> Select Existing Question File: </P></Col>
+									<Col className="text-right"><P><QuizTooltip tipID="1" header={componentText.selectQuizTT} tooltip={componentText.selectQuizTT} /> {componentText.selectQuiz}:</P></Col>
 									<Col className="text-left">
 										<Form.Control as="select" key={(loadQfile)?'SelectQfileTrue':'SelectQfileFalse'} onChange={onSelectQuizFileChange} defaultValue={(selectedQfile)?selectedQfile.qfid:''}>
 											{createDropdown()}
 										</Form.Control>
 									</Col>
 									<Col className="text-right">
-										<QuizTooltip tipID="2" header="Upload New Question files" tooltip="Upload New Question files" /><Button onClick={()=>{ setLoadQfile(true) }}>Load New Question File</Button>
+										<QuizTooltip tipID="2" header={componentText.uploadQuizTT} tooltip={componentText.uploadQuizTT} /><Button onClick={()=>{ setLoadQfile(true) }}>{componentText.uploadQuiz}</Button>
 									</Col>
 									<Col className="text-left">
 										<Form.Control
@@ -231,11 +267,11 @@ function Quizzer(props) {
 											placeholder="Select Question File"
 											onChange={onNewQfileChange}
 										/>
-										<Nav.Link style={sampleLink} href={sampleQuiz}>Sample Quiz File</Nav.Link>
+										<Nav.Link style={sampleLink} href={sampleQuiz}>{componentText.sampleQuizLink}</Nav.Link>
 									</Col>
 								</Row>
 								<Row>
-									<Col className="text-right"><P><QuizTooltip tipID="3" header="# of Questions in the quiz" tooltip="Select the number of questions in the quiz" /># of Questions (Default: 10 questions, Max 100 Questions)</P></Col>
+									<Col className="text-right"><P><QuizTooltip tipID="3" header={componentText.numQuestTT} tooltip={componentText.numQuestTT} />{componentText.numQuest}</P></Col>
 									<Col className="text-left">
 										<Form.Control as="select" onChange={setqCount}>
 											{<option key={0} value={numQuestions} >{numQuestions}</option>}
@@ -246,9 +282,9 @@ function Quizzer(props) {
 									</Col>
 								</Row>
 								<Row>
-									<Col className="text-right"><P><QuizTooltip tipID="4" header="Quiz Time Limit" tooltip="Select the Time Limit to complete the quiz. If 0 is selected there is not a time limit" />Quiz Time Limit (Default: no limit, Max: 3600 seconds)</P></Col>
+									<Col className="text-right"><P><QuizTooltip tipID="4" header={componentText.quizTimeLimitTTHeader} tooltip={componentText.quizTimeLimitTT} />{componentText.quizTimeLimit}</P></Col>
 									<Col className="text-left">
-										<Form.Control as="select" onChange={onTimeLimitChange}>
+										<Form.Control as="select" key={(timeLimit>0)?'TimeLimitEngage':'TimeLimitStop'} onChange={onTimeLimitChange}>
 											{<option key={-1} value={timeLimit} >{timeLimit}</option>}
 											<option key="0" value="0" >0</option>
 											<option key="5" value="5" >5</option>
@@ -264,12 +300,12 @@ function Quizzer(props) {
 									</Col>
 								</Row>
 								<Row>
-									<Col className="text-right"><P><QuizTooltip tipID="5" header="Display Correct Answer" tooltip="If set to 'SHOW' the correct answer to a missed question will be displayed." />Display Correct Answers</P></Col>
+									<Col className="text-right"><P><QuizTooltip tipID="5" header={componentText.quizAnswersTTHeader} tooltip={componentText.quizAnswersTT} />{componentText.quizAnswers}</P></Col>
 									<Col className="text-left">
 										<Form.Control as="select" onChange={saveShowAnswers}>
 											{<option key={0} value={showAnswers} >{showAnswers}</option>}
-											<option key="1" value="SHOW">SHOW</option>
-											<option key="2" value="HIDE">HIDE</option>
+											<option key="1" value="SHOW">{componentText.show}</option>
+											<option key="2" value="HIDE">{componentText.hide}</option>
 										</Form.Control>
 									</Col>
 								</Row>
@@ -293,7 +329,7 @@ function Quizzer(props) {
 	}
 }
 
-export default compose(withFirebase, withAuthUser, connect(store => ({
+export default compose(withFirebase, withAuthUser, withTranslator, connect(store => ({
 		showAnswers: store.quizzer.showAnswers,
 		timeLimit: store.quizzer.timeLimit,
 		numQuestions: store.quizzer.numQuestions,

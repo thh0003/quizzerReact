@@ -11,6 +11,7 @@ import {
 import {useDispatch} from "react-redux";
 import {H1, H3, P} from "../StyledHeaders";
 import StyledStrapForm from "../StyledStrapForm";
+import { TranslateTag } from '../Translator';
 
 const ImageUploadForm = (props) =>{
 
@@ -46,12 +47,12 @@ const ImageUploadForm = (props) =>{
 			<StyledStrapForm>
 				<Row>
 					<Col>
-						<H1 className="text-center">Change Profile Image</H1>					
+						<H1 className="text-center"><TranslateTag>Change Profile Image</TranslateTag></H1>					
 					</Col>
 				</Row>
 				<Row>
 					<Col className="text-right">
-						<Form.Label>Image Path</Form.Label>
+						<Form.Label><TranslateTag>Image Path</TranslateTag></Form.Label>
 					</Col>
 					<Col>
 						<Form.Control
@@ -64,7 +65,7 @@ const ImageUploadForm = (props) =>{
 				</Row>
 				<Row>
 					<Col className="text-center">
-						<Button color="primary" onClick={onSubmit} size="lg">Change Image</Button>
+						<Button color="primary" onClick={onSubmit} size="lg"><TranslateTag>Change Image</TranslateTag></Button>
 					</Col>
 				</Row>
 				<Row>

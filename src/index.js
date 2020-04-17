@@ -9,12 +9,11 @@ import * as serviceWorker from './serviceWorker';
 ReactDOM.render(
 	
 	<FirebaseContext.Provider value={new Firebase()}>
-		<React.StrictMode>
-			<Provider store={store}>
-				<App />
-			</Provider>
-		</React.StrictMode>
-		
+			<React.StrictMode>
+				<Provider store={store}>
+					<App />
+				</Provider>
+			</React.StrictMode>
 	</FirebaseContext.Provider>
 	,
 

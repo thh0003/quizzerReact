@@ -14,7 +14,12 @@ const initialState = {
 	areport:false,
 	userRole:null,
 	profileUpdate:false,
-	timesUp:false
+	timesUp:false,
+	language:{
+		displayLanguage: 'ENGLISH',
+		languageId:'en'
+	},
+	langChange:true
   };
 
 
@@ -30,7 +35,12 @@ const resetState = {
 	qreport:false,
 	areport:false,
 	userRole:null,
-	timesUp:false
+	timesUp:false,
+	language:{
+		displayLanguage: 'ENGLISH',
+		languageId:'en'
+	},
+	langChange:true
 };
 
 //showAnswers={showAnswers} timeLimit={timeLimit} numQuestions={numQuestions} selectedQfile={selectedQfile} qstart={qstart}
@@ -113,7 +123,8 @@ export default function(state = initialState, action) {
 				...resetState,
 				numQuestions:10,
 				Qfiles:state.Qfiles,
-				selectedQfile:state.selectedQfile
+				selectedQfile:state.selectedQfile,
+				timeLimit:state.timeLimit
 			};
 
 		case 'SIGNOUT':
@@ -139,7 +150,13 @@ export default function(state = initialState, action) {
 				...state,
 				timesUp:action.timesUp
 		};			
-
+		case 'UPDATE_LANGUAGE':
+			//factor = HTML Tag id, value = whole html HTML Tag
+			return {
+				...state,
+				language:action.language,
+				langChange:action.langChange
+		};			
 		default:
 			return state;
 	}

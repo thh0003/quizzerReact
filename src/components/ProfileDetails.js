@@ -3,12 +3,12 @@ import { NavLink, withRouter, useHistory } from "react-router-dom";
 import { withAuthUser } from './Session';
 import { compose } from 'recompose';
 import { withFirebase } from './Firebase';
+import {TranslateTag} from './Translator';
 
 import {
   Card
 } from "react-bootstrap";
 
-import psDebug from "./debugService";
 import blankPhoto from "../assets/blank.jpg";
 import {connect, useDispatch} from "react-redux";
 
@@ -25,8 +25,6 @@ const ProfileDetailsInfo = (props) =>{
 	const [cuser] = useState(props.authuser);
 	const [profileImg, setProfileImg] = useState((cuser.photoURL==null)?blankPhoto:cuser.photoURL);
 	const [isLoaded, setIsLoaded] = useState(false);
-	psDebug.consoleLogger(`ProfileDetails->render: `);
-	psDebug.consoleLogger(props);
 
 	useEffect (()=>{
 		if (props.profileUpdate){
@@ -54,7 +52,7 @@ const ProfileDetailsInfo = (props) =>{
 			<Card>
 				<Card.Header>
 				<Card.Title tag="h5" className="text-center mb-0">
-					Profile Details
+					<TranslateTag>Profile Details</TranslateTag>
 				</Card.Title>
 				</Card.Header>
 				<Card.Body className="text-center">
@@ -68,8 +66,8 @@ const ProfileDetailsInfo = (props) =>{
 				<Card.Title tag="h5" className="mb-0">
 					{cuser.displayName}
 				</Card.Title>
-				<NavLink to="/Quizzer" className="sidebar-link" activeClassName="active"> Dashboard </NavLink>
-				<NavLink to="/" onClick={onSignOutClick} className="sidebar-link" activeClassName="active"> Sign Out </NavLink>
+				<NavLink to="/Quizzer" className="sidebar-link" activeClassName="active"> <TranslateTag>Dashboard</TranslateTag> </NavLink>
+				<NavLink to="/" onClick={onSignOutClick} className="sidebar-link" activeClassName="active"> <TranslateTag>Sign Out</TranslateTag> </NavLink>
 				</Card.Body>
 				<hr className="my-0" />
 			</Card>

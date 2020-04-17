@@ -9,6 +9,7 @@ import {
 } from "react-bootstrap";
 import {H1, H3} from "./StyledHeaders";
 import StyledStrapForm from "./StyledStrapForm";
+import {TranslateTag} from "./Translator";
 
 const ChangePasswordForm = (props) =>{
 
@@ -38,13 +39,13 @@ const ChangePasswordForm = (props) =>{
 		<StyledStrapForm>
 			<Row>
 				<Col className="text-center">
-					<H1>Change Password</H1>
+					<H1><TranslateTag>Change Password</TranslateTag></H1>
 				</Col>
 			</Row>
 			<Row>
 				<Col className="text-center">
 					<Form.Group>
-						<Form.Label>Password</Form.Label>
+						<Form.Label><TranslateTag>Password</TranslateTag></Form.Label>
 						<Form.Control
 							type="password"
 							name="password"
@@ -57,7 +58,7 @@ const ChangePasswordForm = (props) =>{
 			<Row>
 				<Col className="text-center">
 					<Form.Group>
-						<Form.Label>Confirm Password</Form.Label>
+						<Form.Label><TranslateTag>Confirm Password</TranslateTag></Form.Label>
 						<Form.Control
 							type="password"
 							name="confirmpassword"
@@ -69,7 +70,7 @@ const ChangePasswordForm = (props) =>{
 			</Row>
 			<Row>
 				<Col className="text-center">
-					<Button color="primary" disabled={isInvalid} onClick={onSubmit} size="lg">Change Password</Button>
+					<Button color="primary" disabled={isInvalid} onClick={onSubmit} size="lg"><TranslateTag>Change Password</TranslateTag></Button>
 				</Col>
 			</Row>
 			<Row>

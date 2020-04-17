@@ -11,11 +11,12 @@ import ChangePassword from "./ChangePassword";
 import ImageUpload from "./ImageUpload";
 import ProfileDetails from "./ProfileDetails";
 import {H1} from "./StyledHeaders";
+import {TranslateTag} from "./Translator";
 
 const Profile = () => (
 
 <Container fluid>
-	<H1 className='text-center'>Profile</H1>
+	<H1 className='text-center'><TranslateTag>Profile</TranslateTag></H1>
 	<Row>
 	<Col>
 		<ProfileDetails />

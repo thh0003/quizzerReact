@@ -1,7 +1,16 @@
-import React, { useState } from "react";
+import React, {useState, useEffect} from "react";
 import { connect, useDispatch } from "react-redux";
 import { Row, Col, ListGroup, Button } from "react-bootstrap";
 import {H1, P} from "./StyledHeaders";
+import { compose } from 'recompose';	
+import {withTranslator} from './Translator';
+
+const initialState = {	
+	loading:"Loading ...",
+	question:"Question",
+	submit:"Submit Answer",
+	stop:"StopQuiz"
+};
 
 const QuizQuestion = (props) => {
 	const [selAnswer,setSelAnswer] = useState(0);
@@ -9,12 +18,15 @@ const QuizQuestion = (props) => {
 //	const CurrentCorrect = (typeof props.Question==='undefined' || props.Question===null )?'':props.Question.getCorrect();
 	const CurrentAnswers = (typeof props.Question==='undefined' || props.Question===null )?'':props.Question.getAnswers();
 	const dispatch = useDispatch();
-	
+	const [componentText,setComponentText] = useState(initialState);
+	const [isLoaded,setIsLoaded] = useState(false);
+
 	const submitAnswer = (e) => {
 		dispatch({
 			type:'UPDATE_ANSWER',
 			SubmitedAnswer:parseInt(e.target.value)
 		});
+		setIsLoaded(false);
 	}
 
 	const stopQuiz = () => {
@@ -29,41 +41,64 @@ const QuizQuestion = (props) => {
 		setSelAnswer(selAnswer);
 	}
 
-	let displayAnswers=[]
-	for (let answer in CurrentAnswers){
-		displayAnswers.push(<ListGroup.Item action onClick={selectAnswer} key={answer} value={answer} className="text-left">{CurrentAnswers[answer]}</ListGroup.Item>);
-	}
+	useEffect (()=>{
+		let translateList = initialState;
 
-	return (
-		<React.Fragment>
+		for (let answer in CurrentAnswers){
+			translateList[answer]=CurrentAnswers[answer];
+		}
+		translateList[CurrentQuestion] = CurrentQuestion;
+		props.translator.getCompTranslation(translateList)
+			.then ((translation)=>{
+				setComponentText(translation);
+				setIsLoaded(true);
+			});
+	},[props.translator, CurrentAnswers, CurrentQuestion]);
+
+	if (!isLoaded){
+		return (
 			<Row>
-				<Col>
-					<H1 className="text-left">Question</H1>
-				</Col>
+				<Col><h1>{componentText.loading}</h1></Col>
 			</Row>
-			<Row>
-				<Col>
-					<P className="text-left">{CurrentQuestion}</P>
-				</Col>
-			</Row>
-			<Row>
-				<Col>
-					<ListGroup>
-						{displayAnswers}
-					</ListGroup>
-				</Col>
-			</Row>
-			<Row>
-				<Col className="text-left">
-					<Button size="xs" onClick={submitAnswer} value={parseInt(selAnswer)+1} variant="primary">Submit Answer</Button>
-					<Button size="xs" onClick={stopQuiz} variant="primary">StopQuiz</Button>
-				</Col>
-			</Row>
-		</React.Fragment>
-	);
+		);
+	} else {	
+
+		let displayAnswers=[]
+		for (let answer in CurrentAnswers){
+			displayAnswers.push(<ListGroup.Item action onClick={selectAnswer} key={answer} value={answer} className="text-left">{componentText[answer]}</ListGroup.Item>);
+		}
+
+		return (
+			<React.Fragment>
+				<Row>
+					<Col>
+						<H1 className="text-left">{componentText.question}</H1>
+					</Col>
+				</Row>
+				<Row>
+					<Col>
+						<P className="text-left">{componentText[CurrentQuestion]}</P>
+					</Col>
+				</Row>
+				<Row>
+					<Col>
+						<ListGroup>
+							{displayAnswers}
+						</ListGroup>
+					</Col>
+				</Row>
+				<Row>
+					<Col className="text-left">
+						<Button size="xs" onClick={submitAnswer} value={parseInt(selAnswer)+1} variant="primary">{componentText.submit}</Button>
+						<Button size="xs" onClick={stopQuiz} variant="primary">{componentText.stop}</Button>
+					</Col>
+				</Row>
+			</React.Fragment>
+		);
+	}
 }
 
-export default connect(store => ({
+export default compose(withTranslator, connect(store => ({
 	Question:store.quizzer.Question,
 	showAnswers:store.quizzer.showAnswers
-}))(QuizQuestion);
+})))(QuizQuestion);

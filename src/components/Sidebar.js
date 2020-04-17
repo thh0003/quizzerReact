@@ -8,9 +8,21 @@ import PerfectScrollbar from "react-perfect-scrollbar";
 
 import { withAuthUser } from "./Session";
 import StyledNavBarRow, { StyledNavBarCol } from "./StyledNavBarRow";
+import {LanguageChooser, withTranslator} from "../components/Translator";
 import blankPhoto from "../assets/blank.jpg";
 import styles from "../assets/css/SideBar.module.css";
 import { withFirebase } from "./Firebase";
+const initialState = {
+	adminReport:"Show Admin Report",
+	exportReport:"Export Admin Report",
+	profile:"Profile",
+	startQuiz:"Start Quiz",
+	quizHelp:"Quiz Instructions",
+	quizReport:"Quiz Report",
+	quizDashboard:"Dashboard",
+	signOut:"Sign-Out",
+	adminActions:"Administrator Actions"
+};
 
 function SidebarSub (props) {
 	const history = useHistory();
@@ -20,6 +32,7 @@ function SidebarSub (props) {
 	const [ photoURL, setPhotoURL] = useState((typeof authUser.photoURL!='undefined' && authUser.photoURL!==null)?authUser.photoURL:blankPhoto);
 	const [ isLoaded, setIsLoaded] = useState(false);
 	const { sidebar} = props;
+	const [componentText,setComponentText] = useState(initialState);
 
 	const showReport = (areport) =>{
 		dispatch ({
@@ -32,7 +45,24 @@ function SidebarSub (props) {
 	const exportAdminReport = async () =>{
 		let filename = 'quizLog.json';
 		let jsonFile = await props.firebase.getQuizLogs(false,true,false);
+		let translateList = {};
+		for(let qid in jsonFile){
+			for(let q in jsonFile[qid].questionLog){
+				let curQuestionID = `${jsonFile[qid].qfid}_${q}`;
+				if(typeof translateList[curQuestionID]==='undefined'){
+					translateList[curQuestionID] = jsonFile[qid].questionLog[q].Question;
+				}
+			}
+		}
 
+		let translation = await props.translator.getCompTranslation(translateList);
+		console.log(translation);
+		for(let qid in jsonFile){
+			for(let q in jsonFile[qid].questionLog){
+				let curQuestionID = `${jsonFile[qid].qfid}_${q}`;
+				jsonFile[qid].questionLog[q].Question = translation[curQuestionID];
+			}
+		}
 		
 		var blob = new Blob([JSON.stringify(jsonFile)], { type: 'application/json;charset=utf-8;' });
 		if (navigator.msSaveBlob) { // IE 10+
@@ -68,6 +98,14 @@ function SidebarSub (props) {
 	}
 
 	useEffect (()=>{
+		props.translator.getCompTranslation(initialState)
+			.then ((translation)=>{
+				setComponentText(translation);
+				setIsLoaded(true);
+			});
+	},[props.translator]);
+
+	useEffect (()=>{
 		if (props.profileUpdate){
 			setPhotoURL((authUser.photoURL==null)?blankPhoto:authUser.photoURL);
 			dispatch({
@@ -91,9 +129,9 @@ function SidebarSub (props) {
 		AdminMenu = (
 				<StyledNavBarRow>
 					<StyledNavBarCol className={styles.sidebarNav}>
-						Administrator Actions<br />
-						<Button style={buttonStyle} size="s" onClick={()=>{showReport(true)}} variant="primary">Show Admin Report</Button>
-						<Button style={buttonStyle} size="s" onClick={exportAdminReport} variant="primary">Export Admin Report</Button>
+						{componentText.adminActions}<br />
+						<Button style={buttonStyle} size="s" onClick={()=>{showReport(true)}} variant="primary">{componentText.adminReport}</Button>
+						<Button style={buttonStyle} size="s" onClick={exportAdminReport} variant="primary">{componentText.exportReport}</Button>
 					</StyledNavBarCol>
 				</StyledNavBarRow>
 		);
@@ -120,12 +158,13 @@ function SidebarSub (props) {
 				</StyledNavBarRow>
 				<StyledNavBarRow>
 					<StyledNavBarCol className={styles.sidebarNav}>
-							<Button style={buttonStyle} size="s" onClick={()=>{history.push('/profile')}} value="/profile" variant="primary">Profile</Button><br />
-							<Button style={buttonStyle} size="s" onClick={startQuiz} variant="primary">Start Quiz</Button><br />
-							<Button style={buttonStyle} size="s" onClick={()=>{history.push('/Help')}} variant="primary">Quiz Instructions</Button><br />
-							<Button style={buttonStyle} size="s" onClick={()=>{showReport(false)}} variant="primary">Quiz Report</Button><br />
-							<Button style={buttonStyle} size="s" onClick={()=>{history.push('/Quizzer')}} value="/Quizzer" variant="primary">Dashboard</Button><br />
-							<Button style={buttonStyle} size="s" onClick={onSignOutClick} value="/" variant="primary">Sign-Out</Button><br />
+							<Button style={buttonStyle} size="s" onClick={()=>{history.push('/profile')}} value="/profile" variant="primary">{componentText.profile}</Button><br />
+							<Button style={buttonStyle} size="s" onClick={startQuiz} variant="primary">{componentText.startQuiz}</Button><br />
+							<Button style={buttonStyle} size="s" onClick={()=>{history.push('/Help')}} variant="primary">{componentText.quizHelp}</Button><br />
+							<Button style={buttonStyle} size="s" onClick={()=>{showReport(false)}} variant="primary">{componentText.quizReport}</Button><br />
+							<Button style={buttonStyle} size="s" onClick={()=>{history.push('/Quizzer')}} value="/Quizzer" variant="primary">{componentText.quizDashboard}</Button><br />
+							<Button style={buttonStyle} size="s" onClick={onSignOutClick} value="/" variant="primary">{componentText.signOut}</Button><br />
+							<LanguageChooser />
 					</StyledNavBarCol>
 				</StyledNavBarRow>
 				{AdminMenu}
@@ -139,7 +178,8 @@ function SidebarSub (props) {
 const Sidebar = compose(
   withRouter,
   withAuthUser,
-  withFirebase
+  withFirebase,
+  withTranslator
 )(SidebarSub);
 
 export default connect(store => ({

@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useState, useEffect} from "react";
 import Footer from "../components/Footer";
 import {Row, Col} from "react-bootstrap";
 import wvuCampus from "../assets/wvu-campus.jpg";
@@ -11,8 +11,25 @@ import {useDispatch} from "react-redux";
 import hamStyles from "../assets/css/Hamburger.module.css";
 import StyledNavBarRow, { StyledNavBarCol } from "../components/StyledNavBarRow";
 import { H3nb } from "../components/StyledHeaders";
+import {withTranslator} from '../components/Translator';
+import { compose } from 'recompose';
 
-const DashboardToggle = ({ children }) => {
+const initialState = {	
+	menu:"Menu",
+	logoAlt:"West Virginia Unversity Logo",
+	title:"CS533 - Quizzer",
+};
+
+const DashboardToggle = (props) => {
+
+	const [componentText,setComponentText] = useState(initialState);
+
+	useEffect (()=>{
+		props.translator.getCompTranslation(initialState)
+			.then ((translation)=>{
+				setComponentText(translation);
+			});
+	},[props.translator]);
 
 	const dispatch = useDispatch();
 	const toggleSidebar = () => {
@@ -28,15 +45,15 @@ const DashboardToggle = ({ children }) => {
 				<Row xs={1}>
 					<Col className="text-center">
 						<span className={`${hamStyles.sidebarToggle} d-flex mr-2`} onClick={() => {dispatch(toggleSidebar());}}>
-							<i className={`${hamStyles.hamburger} align-self-center`} /><span className={hamStyles.menu}>Menu</span>
+							<i className={`${hamStyles.hamburger} align-self-center`} /><span className={hamStyles.menu}>{componentText.menu}</span>
 						</span>
 						<br />									
-						<H3nb><img src={wvuLogo} alt="West Virginia Unversity Logo" height="75px"/>CS533 - Quizzer</H3nb>
+						<H3nb><img src={wvuLogo} alt={componentText.logoAlt} height="75px"/>{componentText.title}</H3nb>
 					</Col>
 				</Row>
 				<StyledNavBarRow xs={1}>
 					<StyledNavBarCol>
-						{children}
+						{props.children}
 					</StyledNavBarCol>
 				</StyledNavBarRow>
 				<StyledNavBarRow xs={1}>
@@ -53,4 +70,4 @@ const condition = (provider) => {
 	return provider.authUser != null;
   };
 
-export default withAuthorization(condition)(DashboardToggle);
+export default compose(withTranslator, withAuthorization(condition))(DashboardToggle);

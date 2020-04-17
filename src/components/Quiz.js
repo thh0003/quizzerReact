@@ -10,6 +10,15 @@ import produce from "immer"
 import { compose } from 'recompose';
 import {withFirebase} from './Firebase';
 import { withAuthUser } from "./Session";
+import {withTranslator} from './Translator';
+
+const initialState = {	
+	loading:"Loading ...",
+	quizResult:"Quiz Result",
+	saveResult:"Save Quiz Results",
+	mainMenu:"Main Menu",
+	quizHeader:"Quiz",
+};
 
 const Quiz = (props) => {
 
@@ -17,6 +26,16 @@ const Quiz = (props) => {
 	const [showResults,setShowResults] = useState(false);
 	const [error, setError] = useState(null);
 	const dispatch = useDispatch();
+	const [isTransLoaded, setIsTransLoaded] = useState(false);
+	const [componentText,setComponentText] = useState(initialState);
+
+	useEffect (()=>{
+		props.translator.getCompTranslation(initialState)
+			.then ((translation)=>{
+				setComponentText(translation);
+				setIsTransLoaded(true);
+			});
+	},[props.translator]);
 
 	const saveQuizResults = async () => {
 		await props.firebase.createQuizLog(props.quiz);		
@@ -183,10 +202,10 @@ const Quiz = (props) => {
 				<Card.Title><H1>Error: {error.message}, {error.stack}</H1></Card.Title>
 			</StyledStrapCard>
 			);
-	} else if (!props.qstart || !isLoaded) {
+	} else if (!props.qstart || !isLoaded || !isTransLoaded) {
 		return (
 			<StyledStrapCard>
-				<Card.Title><H1>Loading ...</H1></Card.Title>
+				<Card.Title><H1>{componentText.loading}</H1></Card.Title>
 			</StyledStrapCard>		
 		);
 	} else if (showResults) {
@@ -194,7 +213,7 @@ const Quiz = (props) => {
 			<React.Fragment>
 				<Row>
 					<Col>
-						<H1 className="text-left">Quiz Results</H1>
+						<H1 className="text-left">{componentText.quizResult}</H1>
 					</Col>
 				</Row>
 				<Row>
@@ -204,8 +223,8 @@ const Quiz = (props) => {
 				</Row>
 				<Row>
 					<Col className="text-left">
-						<Button size="xs" onClick={saveQuizResults} variant="primary">Save Quiz Results</Button>
-						<Button size="xs" onClick={gotoDashboard} variant="primary">Main Menu</Button>
+						<Button size="xs" onClick={saveQuizResults} variant="primary">{componentText.saveResult}</Button>
+						<Button size="xs" onClick={gotoDashboard} variant="primary">{componentText.mainMenu}</Button>
 					</Col>
 				</Row>
 			</React.Fragment>			
@@ -216,7 +235,7 @@ const Quiz = (props) => {
 			<React.Fragment>
 				<Row>
 					<Col>
-						<H1 className="text-left">Quiz</H1>
+						<H1 className="text-left">{componentText.quizHeader}</H1>
 					</Col>
 				</Row>
 				<Row>
@@ -233,7 +252,7 @@ const Quiz = (props) => {
 		);
 	}
 }
-export default compose(withFirebase, withAuthUser, connect(store => ({
+export default compose(withFirebase, withAuthUser, withTranslator, connect(store => ({
 	quiz:store.quizzer.quiz,
 	qstart:store.quizzer.qstart,
 	numQuestions:store.quizzer.numQuestions,

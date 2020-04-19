@@ -7,11 +7,12 @@ import {withFirebase} from "./Firebase";
 import { withAuthUser } from './Session';
 import { compose } from 'recompose';
 import QuestionFile from "../models/QuestionFile";
-import Quiz from "./Quiz";
+//import Quiz from "./Quiz";
 import QuizReport from "./QuizReport";
 import QuizTooltip from "./QuizTooltip";
 import sampleQuiz from "../Qfiles/sample.q.txt";
 import {withTranslator} from './Translator';
+import { withRouter, useHistory } from "react-router-dom";
 
 const initialState = {	
 	loading:" Loading ...",
@@ -57,6 +58,7 @@ function Quizzer(props) {
 	const [uploadName, setUploadName] = useState('');
 
 	const dispatch = useDispatch();
+	const history = useHistory();
 
 	const addNewQFile = async () => {
 		try{
@@ -140,6 +142,8 @@ function Quizzer(props) {
 			type:'UPDATE_QSTART',
 			qstart:true
 		});
+
+		history.push('/Quiz');
 	}
 
 
@@ -155,10 +159,11 @@ function Quizzer(props) {
 				setError(error);
 			}
 		}
-
+		
 		if (Qfiles===null || qFileAdded){
 			loadQFiles()
 			.then((nextQfiles)=>{
+				console.log(nextQfiles);
 				dispatch({
 					type:'UPDATE_QFILES',
 					Qfiles:nextQfiles
@@ -216,11 +221,6 @@ function Quizzer(props) {
 			</Row>			
 		);
 	}
-/*
-	const buttonStyle ={
-		width:"100%"
-	}
-*/
 	if (error) {
 		return (
 			<StyledStrapCard>
@@ -288,6 +288,7 @@ function Quizzer(props) {
 											id="showAnswers"
 											label=""
 											onChange={saveShowAnswers}
+											checked={showAnswers}
 										/>
 									</Col>
 								</Row>
@@ -328,11 +329,6 @@ function Quizzer(props) {
 								{displayLoadError}
 							</Col>
 						</Row>
-						<Row className={sectionVisible.QUIZ}>
-							<Col>
-								<Quiz />
-							</Col>
-						</Row>						
 						<Row className={sectionVisible.REPORT}>
 							<Col>
 								<QuizReport />
@@ -344,7 +340,7 @@ function Quizzer(props) {
 	}
 }
 
-export default compose(withFirebase, withAuthUser, withTranslator, connect(store => ({
+export default compose(withFirebase, withAuthUser, withTranslator, withRouter, connect(store => ({
 		showAnswers: store.quizzer.showAnswers,
 		timeLimit: store.quizzer.timeLimit,
 		numQuestions: store.quizzer.numQuestions,

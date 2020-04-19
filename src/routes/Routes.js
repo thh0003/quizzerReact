@@ -9,6 +9,7 @@ import Signup from "../components/Signup";
 import DashboardToggle from "../layouts/DashboardToggle";
 import HelpFile from "../components/HelpFile";
 import Manage from "../components/Manage";
+import Quiz from "../components/Quiz"
 
 const Routes = () => {
   
@@ -18,6 +19,11 @@ const Routes = () => {
 				<Route path="/Quizzer">
 					<DashboardToggle>
 						<Quizzer />
+					</DashboardToggle>
+				</Route>
+				<Route path="/Quiz">
+					<DashboardToggle>
+						<Quiz />
 					</DashboardToggle>
 				</Route>
 				<Route path="/profile">

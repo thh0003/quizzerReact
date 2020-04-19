@@ -27,6 +27,26 @@ class Firebase {
 		return this.auth.currentUser;
 	}
 
+	getUserProfile = async (uid) => {
+		const db = this.userdb;
+		let userP = await db.collection("qUsers").doc(uid).withConverter(userprofileConverter).get();
+		let userPData = null;
+		if (userP.exists){
+			userPData = userP.data();
+		}
+		return userPData;
+	}
+
+	getAllUsers = async () =>{
+		let returnList = []
+		const db = this.userdb;
+		let userList = await db.collection("qUsers").get();
+		for (var user of userList.docs){
+			returnList.push(await this.getUserProfile(user.id));
+		}
+		return returnList;
+	}
+
 	doImageUpdate = async (image) =>{
 		try{
 			const cuser = this.getUser();
@@ -43,24 +63,30 @@ class Firebase {
 		}
 	}
 
-	getQFiles = async (queryType) => {
+	getQFiles = async (queryType='USER') => {
 		try {
 			const cuser = this.getUser();
 			const db = this.userdb;
 			let retqfiles= {};
 			let fbqfiles;
 			const qfileRef = db.collection("qFiles");
+			
 			if(queryType==='QUIZTABLE'){
 				fbqfiles = await qfileRef.where("uid","in",[cuser.uid]).get();
-			} else {
+			} else if (queryType==='ADMIN') {
+				fbqfiles = await qfileRef.get();
+			} else if (queryType==='USER'){
 				fbqfiles = await qfileRef.where("uid","in",[cuser.uid,'DEFAULT']).get();
 			}
+
 			if(fbqfiles.empty){
 				return false;
 			} else {
 				for (var qfile of fbqfiles.docs){
 					let fbport = await qfileRef.doc(qfile.id).withConverter(qFileConverter).get()
 					let fbdata = await fbport.data();
+					let user = (queryType==='ADMIN')?await this.getUserProfile(fbdata.uid):cuser;
+					fbdata.user = user;
 					retqfiles[qfile.id] = fbdata;
 				}
 				return retqfiles;
@@ -138,11 +164,12 @@ class Firebase {
 			if (typeof qfile==='undefined'){
 				throw (new Error("No Questionfile Specified"));
 			} else {
+				
 				const cuser = this.getUser();
 				const db = this.userdb;
 				let fbqFile = await db.collection("qFiles").doc();
 				qfile.qfid = fbqFile.id;
-				qfile.uid = cuser.uid;
+				qfile.uid = (qfile.uid===null)?cuser.uid:qfile.uid;
 				await fbqFile.withConverter(qFileConverter).set(qfile);
 				return qfile;
 			}
@@ -286,16 +313,6 @@ class Firebase {
 	doSignInWithEmailAndPassword = async (email, password) => {
 		let authUser = await this.auth.signInWithEmailAndPassword(email, password);
 		return authUser
-	}
-
-	getUserProfile = async (uid) => {
-		const db = this.userdb;
-		let userP = await db.collection("qUsers").doc(uid).withConverter(userprofileConverter).get();
-		let userPData = null;
-		if (userP.exists){
-			userPData = userP.data();
-		}
-		return userPData;
 	}
 
 	doSignOut = () => { 

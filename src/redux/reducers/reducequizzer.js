@@ -80,7 +80,7 @@ export default function(state = initialState, action) {
 			return {
 				...state,
 				qstart: action.qstart,
-				sectionVisible:(action.qstart===true)?{SETTINGS:'collapse',QUIZ:'visible',REPORT:'collapse'}:{SETTINGS:'visible',QUIZ:'collapse',REPORT:'collapse'}
+//				sectionVisible:(action.qstart===true)?{SETTINGS:'collapse',QUIZ:'visible',REPORT:'collapse'}:{SETTINGS:'visible',QUIZ:'collapse',REPORT:'collapse'}
 		};
 		case 'UPDATE_REPORTS':
 			//factor = HTML Tag id, value = whole html HTML Tag

@@ -11,6 +11,7 @@ import { compose } from 'recompose';
 import {withFirebase} from './Firebase';
 import { withAuthUser } from "./Session";
 import {withTranslator} from './Translator';
+import { withRouter, useHistory } from "react-router-dom";
 
 const initialState = {	
 	loading:"Loading ...",
@@ -22,46 +23,48 @@ const initialState = {
 
 const Quiz = (props) => {
 
-	const [isLoaded, setIsLoaded] = useState(false);
+	const [isQuizLoaded, setIsQuizLoaded] = useState(false);
 	const [showResults,setShowResults] = useState(false);
 	const [error, setError] = useState(null);
 	const dispatch = useDispatch();
 	const [isTransLoaded, setIsTransLoaded] = useState(false);
 	const [componentText,setComponentText] = useState(initialState);
 	const [qstart, setQstart] = useState(props.qstart);
-
-	useEffect(()=>{setQstart(props.qstart);},[props.qstart]);
-
-	useEffect (()=>{
-		props.translator.getCompTranslation(initialState)
-			.then ((translation)=>{
-				setComponentText(translation);
-				setIsTransLoaded(true);
-			});
-	},[props.translator]);
+	const [quiz, setQuiz] = useState(props.quiz);
+	const history = useHistory();
 
 	const saveQuizResults = async () => {
-		await props.firebase.createQuizLog(props.quiz);		
+		await props.firebase.createQuizLog(quiz);		
 		setShowResults(false);
-		setIsLoaded(false);
+		setIsQuizLoaded(false);
 		setIsTransLoaded(false);
 		dispatch({
 			type:'QUIZ_RESET',
 			quiz:null
 		});
+		history.push('/Quizzer');
 	}
 
 	const gotoDashboard = async () => {
 
 		setShowResults(false);
-		setIsLoaded(false);
+		setIsQuizLoaded(false);
 		setIsTransLoaded(false);
 		dispatch({
 			type:'QUIZ_RESET',
 			quiz:null
 		});
+		history.push('/Quizzer');
 
 	}
+
+	useEffect(()=>{setQstart(props.qstart);},[props.qstart]);
+	useEffect(()=>{
+		setQuiz(props.quiz);
+		if (qstart===true && quiz!==null){
+			setIsQuizLoaded(true);
+		}
+	},[props.quiz,qstart,quiz]);
 
 	useEffect(()=>{
 		try{
@@ -70,9 +73,10 @@ const Quiz = (props) => {
 				return newquiz;
 			}
 
-			if (qstart===true){
+			if (qstart===true && quiz===null){
 				createQuiz()
 					.then( (newQuiz) =>{
+						console.log(`New Quiz Created`);
 						newQuiz.quizInit()
 							.then ((qInit)=>{
 								let Question = newQuiz.getQuestion();
@@ -84,27 +88,28 @@ const Quiz = (props) => {
 									type:'UPDATE_QUESTION',
 									Question:Question
 								});
-								setIsLoaded(true);		
 							})
 					});
 			}
 			
 		} catch (e){
-			setIsLoaded(true);
+			setIsQuizLoaded(true);
 			setError(e);
 		}
-	},[qstart,dispatch,props.authuser.uid,props.numQuestions,props.selectedQfile,props.timeLimit]);
+	},[qstart,dispatch,props.authuser.uid,props.numQuestions,props.selectedQfile,props.timeLimit,quiz]);
 
 	useEffect(()=>{
 		try{
 			if (props.SubmitedAnswer!==0){
-				let correct=props.quiz.getcorrect();
-				let asked=props.quiz.getasked();
-				let qCount=props.quiz.getqcount();
+				let correct=quiz.getcorrect();
+				let asked=quiz.getasked();
+				let qCount=quiz.getqcount();
 				var nextQuestion;
 				let lastCorrectAnswer = {};
 				lastCorrectAnswer['CorrectAnswer']=props.Question.getCorrect();
-				lastCorrectAnswer['CORRECT']=false
+				lastCorrectAnswer['CORRECT']=false;
+				lastCorrectAnswer['AnswerText']=props.Question.answers[props.Question.getCorrect()-1];
+				lastCorrectAnswer['QuestionText']=props.Question.question;
 
 				if (props.SubmitedAnswer===props.Question.getCorrect()){
 					correct++;
@@ -117,7 +122,7 @@ const Quiz = (props) => {
 				});
 
 
-				const nextQuizState = produce(props.quiz, draftQuiz =>{
+				const nextQuizState = produce(quiz, draftQuiz =>{
 					let qlogIndex = Object.keys(draftQuiz.questionLog).length;
 					draftQuiz.questionLog[qlogIndex].SubmitedAnswer = props.SubmitedAnswer;
 					draftQuiz.setcorrect(correct);
@@ -146,10 +151,10 @@ const Quiz = (props) => {
 
 					//Save Quiz Results
 					let endTS = Math.floor(new Date())
-					let qstartTS = props.quiz.getstart_ts();
+					let qstartTS = quiz.getstart_ts();
 					let quizDuration = endTS - qstartTS;
 
-					const nextQuizState = produce(props.quiz, draftQuiz =>{
+					const nextQuizState = produce(quiz, draftQuiz =>{
 						draftQuiz.setduration(quizDuration);
 					});
 
@@ -181,10 +186,10 @@ const Quiz = (props) => {
 
 				//Save Quiz Results
 				let endTS = Math.floor(new Date())
-				let qstartTS = props.quiz.getstart_ts();
+				let qstartTS = quiz.getstart_ts();
 				let quizDuration = endTS - qstartTS;
 	
-				const nextQuizState = produce(props.quiz, draftQuiz =>{
+				const nextQuizState = produce(quiz, draftQuiz =>{
 					let qlogIndex = Object.keys(draftQuiz.questionLog).length;
 					draftQuiz.questionLog[qlogIndex].SubmitedAnswer = 0;
 					draftQuiz.setduration(quizDuration);
@@ -200,15 +205,25 @@ const Quiz = (props) => {
 		} catch (e){
 			setError(e);
 		} 
-	},[props.SubmitedAnswer,props.timesUp,props.quiz,dispatch,props.Question])
-	
+	},[props.SubmitedAnswer,props.timesUp,quiz,dispatch,props.Question])
+
+	useEffect (()=>{
+		if (qstart===true && quiz!==null){
+			props.translator.getCompTranslation(initialState)
+				.then ((translation)=>{
+					setComponentText(translation);
+					setIsTransLoaded(true);
+				});
+		}
+	},[props.translator,qstart,quiz]);
+
 	if (error){
 		return (
 			<StyledStrapCard>
 				<Card.Title><H1>Error: {error.message}, {error.stack}</H1></Card.Title>
 			</StyledStrapCard>
 			);
-	} else if (!qstart || !isLoaded || !isTransLoaded) {
+	} else if (!qstart || !isQuizLoaded || !isTransLoaded) {
 		return (
 			<StyledStrapCard>
 				<Card.Title><Spinner animation="border" /></Card.Title>
@@ -251,14 +266,14 @@ const Quiz = (props) => {
 				</Row>
 				<Row>
 					<Col>
-						<QuizQuestion questionNum={(props.quiz!==null)?props.quiz.getasked():0}/>
+						<QuizQuestion questionNum={(quiz!==null)?quiz.getasked():0}/>
 					</Col>
 				</Row>
 			</React.Fragment>
 		);
 	}
 }
-export default compose(withFirebase, withAuthUser, withTranslator, connect(store => ({
+export default compose(withFirebase, withAuthUser, withTranslator, withRouter, connect(store => ({
 	quiz:store.quizzer.quiz,
 	qstart:store.quizzer.qstart,
 	numQuestions:store.quizzer.numQuestions,

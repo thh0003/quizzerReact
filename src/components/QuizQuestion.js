@@ -1,9 +1,10 @@
 import React, {useState, useEffect} from "react";
 import { connect, useDispatch } from "react-redux";
-import { Row, Col, ListGroup, Button } from "react-bootstrap";
+import { Row, Col, ListGroup, Button, Spinner } from "react-bootstrap";
 import {H1, P} from "./StyledHeaders";
 import { compose } from 'recompose';	
 import {withTranslator} from './Translator';
+import { withRouter, useHistory } from "react-router-dom";
 
 const initialState = {	
 	loading:"Loading ...",
@@ -14,19 +15,23 @@ const initialState = {
 
 const QuizQuestion = (props) => {
 	const [selAnswer,setSelAnswer] = useState(0);
-	const CurrentQuestion = (typeof props.Question==='undefined' || props.Question===null )?'':props.Question.getQuestion();
-//	const CurrentCorrect = (typeof props.Question==='undefined' || props.Question===null )?'':props.Question.getCorrect();
-	const CurrentAnswers = (typeof props.Question==='undefined' || props.Question===null )?'':props.Question.getAnswers();
+	const [question, setQuestion] = useState(props.Question);
+	const [CurrentQuestion, setCurrentQuestion] = useState((typeof question==='undefined' || question===null )?'':question.getQuestion());
+	const [CurrentAnswers, setCurrentAnswers]  = useState((typeof question==='undefined' || question===null )?'':question.getAnswers());
 	const dispatch = useDispatch();
 	const [componentText,setComponentText] = useState(initialState);
-	const [isLoaded,setIsLoaded] = useState(false);
+	const [isQuestionLoaded,setIsQuestionLoaded] = useState(false);
+	const history = useHistory();
 
+	useEffect(()=>{setQuestion(props.Question)},[props.Question]);
+	useEffect(()=>{setCurrentQuestion((typeof question==='undefined' || question===null )?setIsQuestionLoaded(false):question.getQuestion())},[question]);
+	useEffect(()=>{setCurrentAnswers((typeof question==='undefined' || question===null )?setIsQuestionLoaded(false):question.getAnswers())},[question]);
 	const submitAnswer = (e) => {
 		dispatch({
 			type:'UPDATE_ANSWER',
-			SubmitedAnswer:parseInt(e.target.value)
+			SubmitedAnswer:parseInt(e.target.value),
 		});
-		setIsLoaded(false);
+		setIsQuestionLoaded(false);
 	}
 
 	const stopQuiz = () => {
@@ -34,6 +39,7 @@ const QuizQuestion = (props) => {
 			type:'QUIZ_RESET',
 			quiz:null
 		});
+		history.push('/Quizzer');
 	}
 
 	const selectAnswer = (e) => {
@@ -42,27 +48,25 @@ const QuizQuestion = (props) => {
 	}
 
 	useEffect (()=>{
-		let translateList = initialState;
+		if(question!==null){
+			let translateList = initialState;
 
-		for (let answer in CurrentAnswers){
-			translateList[answer]=CurrentAnswers[answer];
+			for (let answer in CurrentAnswers){
+				translateList[answer]=CurrentAnswers[answer];
+			}
+			translateList[CurrentQuestion] = CurrentQuestion;
+			props.translator.getCompTranslation(translateList)
+				.then ((translation)=>{
+					setComponentText(translation);
+					setIsQuestionLoaded(true);
+				});
 		}
-		translateList[CurrentQuestion] = CurrentQuestion;
-		props.translator.getCompTranslation(translateList)
-			.then ((translation)=>{
-				setComponentText(translation);
-				setIsLoaded(true);
-			});
+	},[props.translator, CurrentAnswers, CurrentQuestion, question]);
 
-		return function cleanup() {
-			translateList=null;
-		};
-	},[props.translator, CurrentAnswers, CurrentQuestion]);
-
-	if (!isLoaded){
+	if (!isQuestionLoaded){
 		return (
 			<Row>
-				<Col><h1 lang={props.translator.getLangProp()}>{componentText.loading}</h1></Col>
+				<Col><Spinner animation="border" /></Col>
 			</Row>
 		);
 	} else {	
@@ -102,7 +106,7 @@ const QuizQuestion = (props) => {
 	}
 }
 
-export default compose(withTranslator, connect(store => ({
+export default compose(withTranslator, withRouter, connect(store => ({
 	Question:store.quizzer.Question,
 	showAnswers:store.quizzer.showAnswers
 })))(QuizQuestion);

@@ -1,6 +1,6 @@
 import React, {useState, useEffect} from "react";
 import {connect} from "react-redux";
-import { Row, Col } from "react-bootstrap";
+import { Row, Col, Spinner } from "react-bootstrap";
 import {P, Answer} from "./StyledHeaders";
 import TimeLimit from "./TimeLimit";
 import { compose } from 'recompose';	
@@ -40,7 +40,7 @@ const QuizProgress = (props) => {
 
 	if (props.showAnswers && props.lastCorrectAnswer!==null){
 		if (!props.lastCorrectAnswer.CORRECT){
-			CorrectAnswer=`Incorrect:  The correct selection was ${props.lastCorrectAnswer.CorrectAnswer}`;
+			CorrectAnswer=`Incorrect:  The correct answer to Question: ${props.lastCorrectAnswer.QuestionText} was ${props.lastCorrectAnswer.CorrectAnswer}: ${props.lastCorrectAnswer.AnswerText}`;
 		}
 	}
 
@@ -48,7 +48,7 @@ const QuizProgress = (props) => {
 	if (!isLoaded){
 		return (
 			<Row>
-				<Col><h1 lang={props.translator.getLangProp()}>{componentText.loading}</h1></Col>
+				<Col><Spinner animation="border" /></Col>
 			</Row>		
 		);
 	} else {

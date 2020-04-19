@@ -21,7 +21,8 @@ const initialState = {
 	quizReport:"Quiz Report",
 	quizDashboard:"Dashboard",
 	signOut:"Sign-Out",
-	adminActions:"Administrator Actions"
+	adminActions:"Administrator Actions",
+	manageQuizzes:"Manage Quizzes"
 };
 
 function SidebarSub (props) {
@@ -56,7 +57,6 @@ function SidebarSub (props) {
 		}
 
 		let translation = await props.translator.getCompTranslation(translateList);
-		console.log(translation);
 		for(let qid in jsonFile){
 			for(let q in jsonFile[qid].questionLog){
 				let curQuestionID = `${jsonFile[qid].qfid}_${q}`;
@@ -88,13 +88,6 @@ function SidebarSub (props) {
 			type:'SIGNOUT'
 		});
 		history.push(e.target.value);
-	}
-
-	const startQuiz = () =>{
-		dispatch ({
-			type:'UPDATE_QSTART',
-			qstart:true
-		});
 	}
 
 	useEffect (()=>{
@@ -159,8 +152,8 @@ function SidebarSub (props) {
 				<StyledNavBarRow>
 					<StyledNavBarCol className={styles.sidebarNav}>
 							<Button style={buttonStyle} size="s" onClick={()=>{history.push('/profile')}} value="/profile" variant="primary">{componentText.profile}</Button><br />
-							<Button style={buttonStyle} size="s" onClick={startQuiz} variant="primary">{componentText.startQuiz}</Button><br />
 							<Button style={buttonStyle} size="s" onClick={()=>{history.push('/Help')}} variant="primary">{componentText.quizHelp}</Button><br />
+							<Button style={buttonStyle} size="s" onClick={()=>{history.push('/manage')}} variant="primary">{componentText.manageQuizzes}</Button><br />
 							<Button style={buttonStyle} size="s" onClick={()=>{showReport(false)}} variant="primary">{componentText.quizReport}</Button><br />
 							<Button style={buttonStyle} size="s" onClick={()=>{history.push('/Quizzer')}} value="/Quizzer" variant="primary">{componentText.quizDashboard}</Button><br />
 							<Button style={buttonStyle} size="s" onClick={onSignOutClick} value="/" variant="primary">{componentText.signOut}</Button><br />

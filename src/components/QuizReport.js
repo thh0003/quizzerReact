@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import { Row, Col, Card, Button } from "react-bootstrap";
+import { Row, Col, Card, Button, Spinner } from "react-bootstrap";
 import StyledStrapCard from "./StyledStrapCard"
 import {P, H1} from "./StyledHeaders";
 import BootstrapTable from "react-bootstrap-table-next";
@@ -96,7 +96,6 @@ const QuizReport = (props) => {
 			for (let quizlog in QuizLogData){
 				QLData.push(QuizLogData[quizlog]);
 			}
-			console.log(QLData);
 			setReportData(QLData);
 		}
 
@@ -235,7 +234,7 @@ const QuizReport = (props) => {
 	} else if (!isLoaded || !isTransLoaded){
 		return (
 			<StyledStrapCard>
-				<Card.Title><H1>{componentText.loading}</H1></Card.Title>
+				<Card.Title><Spinner animation="border" /></Card.Title>
 			</StyledStrapCard>		
 		);
 	} else {
@@ -244,12 +243,12 @@ const QuizReport = (props) => {
 				<React.Fragment>
 					<Row>
 						<Col className="text-center">
-							<P>{componentText.quizReport}</P>
+							<P lang={props.translator.getLangProp()}>{componentText.quizReport}</P>
 						</Col>
 					</Row>
 					<Row>
 						<Col style={quizReportStyle}>
-							<BootstrapTable
+							<BootstrapTable lang={props.translator.getLangProp()}
 								keyField="qid"
 								headerClasses="bg-primary text-white"
 								striped={true}

@@ -43,15 +43,18 @@ class Firebase {
 		}
 	}
 
-	getQFiles = async () => {
+	getQFiles = async (queryType) => {
 		try {
 			const cuser = this.getUser();
 			const db = this.userdb;
 			let retqfiles= {};
 			let fbqfiles;
 			const qfileRef = db.collection("qFiles");
-
-			fbqfiles = await qfileRef.where("uid","in",[cuser.uid,'DEFAULT']).get();
+			if(queryType==='QUIZTABLE'){
+				fbqfiles = await qfileRef.where("uid","in",[cuser.uid]).get();
+			} else {
+				fbqfiles = await qfileRef.where("uid","in",[cuser.uid,'DEFAULT']).get();
+			}
 			if(fbqfiles.empty){
 				return false;
 			} else {
@@ -82,6 +85,33 @@ class Firebase {
 			console.error(`Firebase->getPortfolios Call Error: Something went wrong: ${error.message} ${error.stack}`);
 			throw error;
 		}
+	}
+
+	deleteQuizFile = async (qfile) =>{
+		try {
+			if (qfile.uid===null&&qfile.qfid===null){
+				throw (new Error("No Questionfile Specified"));
+			} else {
+				let qfid = qfile.qfid;
+				let uid = qfile.uid;
+				//delete all the quizzes which used the quizfile
+				const quizLogRef = this.userdb.collection("qQuizLog");
+				let quizLogs = await quizLogRef.where("uid","==",uid).where("qfid","==",qfid).get();
+				console.log(quizLogs.docs)
+				for (let qlog of quizLogs.docs){
+					await quizLogRef.doc(qlog.id).delete();
+				}
+				
+				//delete the quiz file
+				const qfileRef = this.userdb.collection("qFiles");
+				await qfileRef.doc(qfid).delete();
+				return true;
+			}
+		} catch(error){
+			console.error(`Firebase->deleteQuizFile Call Error: Something went wrong: ${error.message} ${error.stack}`);
+			throw error;
+		}
+
 	}
 
 	setQFile = async (qfile) => {

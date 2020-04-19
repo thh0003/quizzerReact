@@ -1,5 +1,5 @@
 const initialState = {
-	showAnswers: "HIDE",
+	showAnswers: false,
 	timeLimit: 0,
 	numQuestions: 10,
 	selectedQfile:null,
@@ -12,7 +12,6 @@ const initialState = {
 	lastCorrectAnswer:null,
 	qreport:false,
 	areport:false,
-	userRole:null,
 	profileUpdate:false,
 	timesUp:false,
 	language:{
@@ -24,7 +23,7 @@ const initialState = {
 
 
 const resetState = {
-	showAnswers: "HIDE",
+	showAnswers: false,
 	timeLimit: 0,
 	qstart:false,
 	sectionVisible:{SETTINGS:'visible',QUIZ:'collapse',REPORT:'collapse'},
@@ -34,7 +33,6 @@ const resetState = {
 	lastCorrectAnswer:null,
 	qreport:false,
 	areport:false,
-	userRole:null,
 	timesUp:false,
 	language:{
 		displayLanguage: 'ENGLISH',
@@ -121,22 +119,17 @@ export default function(state = initialState, action) {
 			//factor = HTML Tag id, value = whole html HTML Tag
 			return {
 				...resetState,
-				numQuestions:10,
+				numQuestions:state.numQuestions,
 				Qfiles:state.Qfiles,
 				selectedQfile:state.selectedQfile,
-				timeLimit:state.timeLimit
+				timeLimit:state.timeLimit,
+				showAnswers:state.showAnswers
 			};
 
 		case 'SIGNOUT':
 			//factor = HTML Tag id, value = whole html HTML Tag
 			return {
 				...initialState
-			};			
-		case 'UPDATE_USERROLE':
-			//factor = HTML Tag id, value = whole html HTML Tag
-			return {
-				...state,
-				userRole:action.userRole
 			};			
 		case 'UPDATE_PROFILE':
 			//factor = HTML Tag id, value = whole html HTML Tag

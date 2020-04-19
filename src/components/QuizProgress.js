@@ -16,7 +16,7 @@ const initialState = {
 
 
 const QuizProgress = (props) => {
-	let questionNum = 1;
+	let questionNum = 0;
 	let numCorrect =0;
 	let percentCorrect = 0.00;
 	let CorrectAnswer='';
@@ -33,12 +33,12 @@ const QuizProgress = (props) => {
 	},[props.translator]);
 
 	if (props.quiz!==null){
-		questionNum = props.quiz.getasked();
+		questionNum = (props.showResults)?props.quiz.getasked():props.quiz.getasked()-1;
 		numCorrect = props.quiz.getcorrect();
-		percentCorrect = (questionNum===1)?0.00:parseFloat(numCorrect/(questionNum-1)*100).toFixed(2);
+		percentCorrect = (questionNum===0)?0.00:parseFloat(numCorrect/(questionNum)*100).toFixed(2);
 	}
 
-	if (props.showAnswers==='SHOW' && props.lastCorrectAnswer!==null){
+	if (props.showAnswers && props.lastCorrectAnswer!==null){
 		if (!props.lastCorrectAnswer.CORRECT){
 			CorrectAnswer=`Incorrect:  The correct selection was ${props.lastCorrectAnswer.CorrectAnswer}`;
 		}
@@ -48,7 +48,7 @@ const QuizProgress = (props) => {
 	if (!isLoaded){
 		return (
 			<Row>
-				<Col><h1>{componentText.loading}</h1></Col>
+				<Col><h1 lang={props.translator.getLangProp()}>{componentText.loading}</h1></Col>
 			</Row>		
 		);
 	} else {
@@ -57,13 +57,13 @@ const QuizProgress = (props) => {
 			<React.Fragment>
 				<Row>
 					<Col>
-						<P className="text-left">{componentText.quizProgress}</P>
+						<P lang={props.translator.getLangProp()} className="text-left">{componentText.quizProgress}</P>
 					</Col>
 				</Row>
 				<Row>
-					<Col><P>{componentText.totalQuestions}: {questionNum}</P></Col>
-					<Col><P>{componentText.questionsCorrect}: {numCorrect}</P></Col>
-					<Col><P>{componentText.quizPercent} %: {percentCorrect}</P></Col>
+					<Col><P lang={props.translator.getLangProp()}>{componentText.totalQuestions}: {questionNum}</P></Col>
+					<Col><P lang={props.translator.getLangProp()}>{componentText.questionsCorrect}: {numCorrect}</P></Col>
+					<Col><P lang={props.translator.getLangProp()}>{componentText.quizPercent} %: {percentCorrect}</P></Col>
 					<Col><TimeLimit /></Col>
 				</Row>
 				<Row>

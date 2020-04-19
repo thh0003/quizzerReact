@@ -8,7 +8,6 @@ import { compose } from 'recompose';
 import { withFirebase } from './Firebase';
 import { withRouter, useHistory } from 'react-router-dom';
 import {P} from './StyledHeaders';
-import {useDispatch} from "react-redux";
 import {withTranslator, LanguageChooser} from './Translator';
 
 const initialState = {
@@ -29,7 +28,6 @@ const SigninForm = (props) => {
 	const [error,setError] = useState('');
 	const [isLoaded,setIsLoaded] = useState(false)
 	const history = useHistory();
-	const dispatch = useDispatch();
 	const [componentText,setComponentText] = useState(initialState);
 
 	useEffect (()=>{
@@ -44,10 +42,6 @@ const SigninForm = (props) => {
 		try {
 			let authuser = await  props.firebase.doSignInWithEmailAndPassword(email, password)
 		  	if (authuser) {
-				dispatch({
-					type:`UPDATE_USERROLE`,
-					userRole:authuser.user.role
-				});
 				history.push("/Quizzer");
 		  	}
 			event.preventDefault();
@@ -69,10 +63,10 @@ const SigninForm = (props) => {
 				<StyledAuthStrapCard>
 					<Card.Body>
 						<StyledStrapForm>
-							<p className="lead">{componentText.lead}</p>
+							<p className="lead" lang={props.translator.getLangProp()}>{componentText.lead}</p>
 							<Form.Group>
-								<Form.Label>{componentText.emailLabel}</Form.Label>
-								<Form.Control
+								<Form.Label lang={props.translator.getLangProp()}>{componentText.emailLabel}</Form.Label>
+								<Form.Control lang={props.translator.getLangProp()}
 									type="email"
 									name="email"
 									onChange={(e)=>{setEmail(e.target.value)}}
@@ -80,8 +74,8 @@ const SigninForm = (props) => {
 								/>
 							</Form.Group>
 							<Form.Group>
-								<Form.Label>{componentText.passwordLabel}</Form.Label>
-								<Form.Control
+								<Form.Label lang={props.translator.getLangProp()}>{componentText.passwordLabel}</Form.Label>
+								<Form.Control lang={props.translator.getLangProp()}
 								type="password"
 								name="password"
 								onChange={(e)=>{setPassword(e.target.value)}}
@@ -92,7 +86,7 @@ const SigninForm = (props) => {
 								</small>
 							</Form.Group>
 							<div>
-								<Form.Check
+								<Form.Check lang={props.translator.getLangProp()}
 								type="checkbox"
 								id="rememberMe"
 								label={componentText.remember}
@@ -103,7 +97,7 @@ const SigninForm = (props) => {
 								<LanguageChooser />
 							</div>
 							<div className="text-center mt-3">
-								<Button color="primary" size="lg" disabled={isInvalid} onClick={onSubmit}>
+								<Button lang={props.translator.getLangProp()} color="primary" size="lg" disabled={isInvalid} onClick={onSubmit}>
 								{componentText.buttonText}
 								</Button>
 								<br />

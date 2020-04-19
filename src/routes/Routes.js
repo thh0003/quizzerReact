@@ -8,6 +8,7 @@ import ResetPassword from "../components/ResetPassword";
 import Signup from "../components/Signup";
 import DashboardToggle from "../layouts/DashboardToggle";
 import HelpFile from "../components/HelpFile";
+import Manage from "../components/Manage";
 
 const Routes = () => {
   
@@ -32,6 +33,11 @@ const Routes = () => {
 				<Route path="/help">
 					<DashboardToggle>
 						<HelpFile />
+					</DashboardToggle>
+				</Route>
+				<Route path="/manage">
+					<DashboardToggle>
+						<Manage />
 					</DashboardToggle>
 				</Route>
 				<Route path="/sign-up">

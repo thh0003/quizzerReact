@@ -1,5 +1,5 @@
 import React, { useState, useEffect} from "react";
-import { Row, Col, Card, Button } from "react-bootstrap";
+import { Row, Col, Card, Button,Spinner } from "react-bootstrap";
 import { H1} from "./StyledHeaders";
 import QuizProgress from "./QuizProgress";
 import QuizQuestion from "./QuizQuestion";
@@ -28,6 +28,9 @@ const Quiz = (props) => {
 	const dispatch = useDispatch();
 	const [isTransLoaded, setIsTransLoaded] = useState(false);
 	const [componentText,setComponentText] = useState(initialState);
+	const [qstart, setQstart] = useState(props.qstart);
+
+	useEffect(()=>{setQstart(props.qstart);},[props.qstart]);
 
 	useEffect (()=>{
 		props.translator.getCompTranslation(initialState)
@@ -41,6 +44,7 @@ const Quiz = (props) => {
 		await props.firebase.createQuizLog(props.quiz);		
 		setShowResults(false);
 		setIsLoaded(false);
+		setIsTransLoaded(false);
 		dispatch({
 			type:'QUIZ_RESET',
 			quiz:null
@@ -51,6 +55,7 @@ const Quiz = (props) => {
 
 		setShowResults(false);
 		setIsLoaded(false);
+		setIsTransLoaded(false);
 		dispatch({
 			type:'QUIZ_RESET',
 			quiz:null
@@ -65,19 +70,19 @@ const Quiz = (props) => {
 				return newquiz;
 			}
 
-			if (props.qstart===true){
+			if (qstart===true){
 				createQuiz()
 					.then( (newQuiz) =>{
 						newQuiz.quizInit()
 							.then ((qInit)=>{
 								let Question = newQuiz.getQuestion();
 								dispatch({
-									type:'UPDATE_QUESTION',
-									Question:Question
-								});
-								dispatch({
 									type:'UPDATE_QUIZ',
 									quiz:newQuiz
+								});
+								dispatch({
+									type:'UPDATE_QUESTION',
+									Question:Question
 								});
 								setIsLoaded(true);		
 							})
@@ -88,7 +93,7 @@ const Quiz = (props) => {
 			setIsLoaded(true);
 			setError(e);
 		}
-	},[props.qstart,dispatch,props.authuser.uid,props.numQuestions,props.selectedQfile,props.timeLimit]);
+	},[qstart,dispatch,props.authuser.uid,props.numQuestions,props.selectedQfile,props.timeLimit]);
 
 	useEffect(()=>{
 		try{
@@ -163,6 +168,7 @@ const Quiz = (props) => {
 						type:'UPDATE_QUIZ',
 						quiz:nextQuizState
 					});
+
 					dispatch({
 						type:'UPDATE_QUESTION',
 						Question:null
@@ -195,17 +201,17 @@ const Quiz = (props) => {
 			setError(e);
 		} 
 	},[props.SubmitedAnswer,props.timesUp,props.quiz,dispatch,props.Question])
-
+	
 	if (error){
 		return (
 			<StyledStrapCard>
 				<Card.Title><H1>Error: {error.message}, {error.stack}</H1></Card.Title>
 			</StyledStrapCard>
 			);
-	} else if (!props.qstart || !isLoaded || !isTransLoaded) {
+	} else if (!qstart || !isLoaded || !isTransLoaded) {
 		return (
 			<StyledStrapCard>
-				<Card.Title><H1>{componentText.loading}</H1></Card.Title>
+				<Card.Title><Spinner animation="border" /></Card.Title>
 			</StyledStrapCard>		
 		);
 	} else if (showResults) {
@@ -213,18 +219,18 @@ const Quiz = (props) => {
 			<React.Fragment>
 				<Row>
 					<Col>
-						<H1 className="text-left">{componentText.quizResult}</H1>
+						<H1 className="text-left" lang={props.translator.getLangProp()}>{componentText.quizResult}</H1>
 					</Col>
 				</Row>
 				<Row>
 					<Col>
-						<QuizProgress />
+						<QuizProgress showResults={true} />
 					</Col>
 				</Row>
 				<Row>
 					<Col className="text-left">
-						<Button size="xs" onClick={saveQuizResults} variant="primary">{componentText.saveResult}</Button>
-						<Button size="xs" onClick={gotoDashboard} variant="primary">{componentText.mainMenu}</Button>
+						<Button size="xs" lang={props.translator.getLangProp()} onClick={saveQuizResults} variant="primary">{componentText.saveResult}</Button>
+						<Button size="xs" lang={props.translator.getLangProp()} onClick={gotoDashboard} variant="primary">{componentText.mainMenu}</Button>
 					</Col>
 				</Row>
 			</React.Fragment>			
@@ -235,7 +241,7 @@ const Quiz = (props) => {
 			<React.Fragment>
 				<Row>
 					<Col>
-						<H1 className="text-left">{componentText.quizHeader}</H1>
+						<H1 className="text-left" lang={props.translator.getLangProp()}>{componentText.quizHeader}</H1>
 					</Col>
 				</Row>
 				<Row>
@@ -245,7 +251,7 @@ const Quiz = (props) => {
 				</Row>
 				<Row>
 					<Col>
-						<QuizQuestion />
+						<QuizQuestion questionNum={(props.quiz!==null)?props.quiz.getasked():0}/>
 					</Col>
 				</Row>
 			</React.Fragment>

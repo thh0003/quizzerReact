@@ -19,18 +19,18 @@ class Translator
     constructor( fromlang = {ENGLISH:'en'}, selectToLanguage={ENGLISH:'en'})
     {
         this.fromLanguage = fromlang;
-        this.selectedToLanguage = selectToLanguage;
+		this.selectedToLanguage = selectToLanguage;
 		this.toLanguage={
             ENGLISH:'en',
-            ARABIC:'ar',
-            CHINESE:'zh',
-            FRENCH:'fr',
-            GERMAN:'de',
-            HEBREW:'he',
-            JAPANESE:'ja',
-            KOREAN:'ko',
-            SPANISH:'es',
-            RUSSIAN:'ru'
+            عربى:'ar',
+            中文:'zh',
+            FRANÇAIS:'fr',
+            DEUTSCHE:'de',
+            עִברִית:'he',
+            日本語:'ja',
+            한국어:'ko',
+            ESPAÑOL:'es',
+            РУССКИЙ:'ru'
         };
 		this.tText = '';
     }
@@ -41,8 +41,6 @@ class Translator
 
     async getCompTranslation(componentText){
         try {
-//            console.log(`getCompTranslation fromLanguage: ${this.fromLanguage[Object.keys(this.fromLanguage)[0]]}, selectedToLangue: ${this.selectedToLanguage[Object.keys(this.selectedToLanguage)[0]]}`);
-//            console.log(componentText);
             let translation = {};
             let numTranslations = Object.keys(componentText).length;
             if (numTranslations > 100){
@@ -70,7 +68,10 @@ class Translator
         } catch (error) {
             throw error;
         }
-    }
+	}
+	getLangProp = () =>{
+		return `${this.selectedToLanguage[Object.keys(this.selectedToLanguage)[0]]}-x-mtfrom-${this.fromLanguage[Object.keys(this.fromLanguage)[0]]}`;
+	}
 
     /**
      * Translate specified Text
@@ -99,13 +100,10 @@ class Translator
                       headers: myHeaders,
                       body: urlencoded
                     };
-  //                  console.log(`url: ${TRANSLATOR_URL}`);
-  //                  console.log(urlencoded);
                     let translatedText=await fetch(TRANSLATOR_URL, requestOptions)
 
                     if (translatedText){
                         let translatedJSON = await translatedText.json();
-//                        console.log(translatedJSON);
                         let x=0;
                         for (let t in text){
                             returnTranslate[t]=translatedJSON.data.translations[x].translatedText;

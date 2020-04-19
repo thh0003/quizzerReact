@@ -52,11 +52,11 @@ const QuizReportRow = (props) => {
 			questionRender = (
 				<Container style={questionStyle}>
 					<Row style={quizReportStyle}>
-						<Col style={quizReportStyle}>{`${rowData[question].QuestionNumber}) ${rowData[question].Question}`}</Col>
+						<Col lang={props.translator.getLangProp()} style={quizReportStyle}>{`${rowData[question].QuestionNumber}) ${rowData[question].Question}`}</Col>
 					</Row>
 					<Row style={isCorrect}>
-						<Col>{`${componentText.submitted}: ${submittedAns}`}</Col>
-						<Col>{`${componentText.correct}: ${correctAns}`}</Col>
+						<Col lang={props.translator.getLangProp()}>{`${componentText.submitted}: ${submittedAns}`}</Col>
+						<Col lang={props.translator.getLangProp()}>{`${componentText.correct}: ${correctAns}`}</Col>
 					</Row>
 				</Container>
 			);

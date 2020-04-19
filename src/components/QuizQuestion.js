@@ -9,7 +9,7 @@ const initialState = {
 	loading:"Loading ...",
 	question:"Question",
 	submit:"Submit Answer",
-	stop:"StopQuiz"
+	stop:"Stop Quiz"
 };
 
 const QuizQuestion = (props) => {
@@ -53,31 +53,35 @@ const QuizQuestion = (props) => {
 				setComponentText(translation);
 				setIsLoaded(true);
 			});
+
+		return function cleanup() {
+			translateList=null;
+		};
 	},[props.translator, CurrentAnswers, CurrentQuestion]);
 
 	if (!isLoaded){
 		return (
 			<Row>
-				<Col><h1>{componentText.loading}</h1></Col>
+				<Col><h1 lang={props.translator.getLangProp()}>{componentText.loading}</h1></Col>
 			</Row>
 		);
 	} else {	
 
 		let displayAnswers=[]
 		for (let answer in CurrentAnswers){
-			displayAnswers.push(<ListGroup.Item action onClick={selectAnswer} key={answer} value={answer} className="text-left">{componentText[answer]}</ListGroup.Item>);
+			displayAnswers.push(<ListGroup.Item lang={props.translator.getLangProp()} action onClick={selectAnswer} key={answer} value={answer} className="text-left">{componentText[answer]}</ListGroup.Item>);
 		}
 
 		return (
 			<React.Fragment>
 				<Row>
 					<Col>
-						<H1 className="text-left">{componentText.question}</H1>
+						<H1 lang={props.translator.getLangProp()} className="text-left">{componentText.question} {props.questionNum}</H1>
 					</Col>
 				</Row>
 				<Row>
 					<Col>
-						<P className="text-left">{componentText[CurrentQuestion]}</P>
+						<P lang={props.translator.getLangProp()} className="text-left">{componentText[CurrentQuestion]}</P>
 					</Col>
 				</Row>
 				<Row>
@@ -89,8 +93,8 @@ const QuizQuestion = (props) => {
 				</Row>
 				<Row>
 					<Col className="text-left">
-						<Button size="xs" onClick={submitAnswer} value={parseInt(selAnswer)+1} variant="primary">{componentText.submit}</Button>
-						<Button size="xs" onClick={stopQuiz} variant="primary">{componentText.stop}</Button>
+						<Button size="xs" lang={props.translator.getLangProp()} onClick={submitAnswer} value={parseInt(selAnswer)+1} variant="primary">{componentText.submit}</Button>
+						<Button size="xs" lang={props.translator.getLangProp()}  onClick={stopQuiz} variant="primary">{componentText.stop}</Button>
 					</Col>
 				</Row>
 			</React.Fragment>

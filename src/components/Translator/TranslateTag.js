@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useRef} from "react";
+import React, {useState, useEffect} from "react";
 import {withTranslator} from './index';
 
 const initialState = {
@@ -30,9 +30,9 @@ const TranslateTag = (props) => {
 		);
 	} else {
 		return (
-			<React.Fragment>
+			<span lang={props.translator.getLangProp()}>
 				{componentText.translateText}
-			</React.Fragment>
+			</span>
 		);
 	}
 }

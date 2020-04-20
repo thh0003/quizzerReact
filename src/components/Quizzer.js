@@ -163,7 +163,6 @@ function Quizzer(props) {
 		if (Qfiles===null || qFileAdded){
 			loadQFiles()
 			.then((nextQfiles)=>{
-				console.log(nextQfiles);
 				dispatch({
 					type:'UPDATE_QFILES',
 					Qfiles:nextQfiles

@@ -76,7 +76,6 @@ const Quiz = (props) => {
 			if (qstart===true && quiz===null){
 				createQuiz()
 					.then( (newQuiz) =>{
-						console.log(`New Quiz Created`);
 						newQuiz.quizInit()
 							.then ((qInit)=>{
 								let Question = newQuiz.getQuestion();

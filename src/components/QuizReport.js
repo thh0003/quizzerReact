@@ -10,6 +10,7 @@ import {connect, useDispatch} from "react-redux";
 import { compose } from 'recompose';
 import QuizReportRow from './QuizReportRow';
 import {withTranslator} from './Translator';
+import produce from "immer";
 
 const initialState = {	
 	loading:"Loading ...",
@@ -58,6 +59,13 @@ const QuizReport = (props) => {
 	const dispatch = useDispatch();
 	const [componentText,setComponentText] = useState(initialState);
 	const [isTransLoaded,setIsTransLoaded] = useState(false);
+	const [confirmMsg, setConfirmMsg] = useState('');
+	const [page, setPage] = useState(1);
+	const [pageSize, setPageSize] = useState(10);
+	const [sort, setSort] = useState({
+		dataField: 'name',
+		order: 'desc'
+	  });
 
 	useEffect (()=>{
 		let translateList = initialState;
@@ -133,43 +141,26 @@ const QuizReport = (props) => {
 		expandByColumnOnly: true
 	};
 
-	const rowStyle = (row, rowIndex) => {
-		row.index = rowIndex;
-		const style = {};
-		if (rowIndex % 2 === 0) {
-		  style.backgroundColor = 'transparent';
-		} else {
-		  style.backgroundColor = 'rgba(54, 163, 173, .10)';
-		}
-		style.borderTop = 'none';
-	
-		return style;
-	}
-
-	const deleteQuizLog = async (quizLog) =>{
+	const deleteQuizLog = async (quizLog, quizIndex) =>{
 		try {
 			setIsLoaded(false);
 			await props.firebase.deleteQuizLog(quizLog);
-			await updateQuizReport();
+			setConfirmMsg(`Quiz ${quizLog.qid} has been deleted`);
+			updateQuizReport(quizLog, quizIndex);
 		} catch (error) {
 			setError(error);
 		}
 	}
 
-	const updateQuizReport = async () =>{
-	
-		const getQuizLogs = async () => {
-			let QLData = [];
-			let QuizLogData = await props.firebase.getQuizLogs(props.qreport,props.areport,false);
-
-			for (let quizlog in QuizLogData){
-				QLData.push(QuizLogData[quizlog]);
-			}
-			setReportData(QLData);
-		}
-
+	const updateQuizReport = async (quizLog, quizIndex) =>{
 		try{
-			await getQuizLogs(props.qreport,props.areport);
+
+			const nextReportState = produce(reportData, draftReportData =>{
+				let qindex = reportData.indexOf(quizLog);
+				console.log(`quizLog Index: ${qindex}`);
+				draftReportData.splice(qindex,1);
+			});
+			setReportData(nextReportState);
 			setIsLoaded(true);
 		} catch(e){
 			setIsLoaded(true);
@@ -182,38 +173,87 @@ const QuizReport = (props) => {
 			dataField: "qCount",
 			text: componentText.qCount,
 			sort: true,
+			onSort: (field,order)=>{
+				console.log(`field: ${field}, order: ${order}`);
+				setSort({
+					dataField: field,
+					order: order
+				});
+			}
 		},
 		{
 			dataField: "asked",
 			text: componentText.asked,
 			sort: true,
+			onSort: (field,order)=>{
+				console.log(`field: ${field}, order: ${order}`);
+				setSort({
+					dataField: field,
+					order: order
+				});
+			}
 		},
 		{
 			dataField: "correct",
 			text: componentText.correct,
-			sort: true
+			sort: true,
+			onSort: (field,order)=>{
+				console.log(`field: ${field}, order: ${order}`);
+				setSort({
+					dataField: field,
+					order: order
+				});
+			}
 		},
 		{
 			dataField: "duration",
 			text: componentText.duration,
 			sort: true,
 			formatter: timeFormatter,
+			onSort: (field,order)=>{
+				console.log(`field: ${field}, order: ${order}`);
+				setSort({
+					dataField: field,
+					order: order
+				});
+			}
 		},        
 		{
 			dataField: "start_ts",
 			text: componentText.date,
 			sort: true,
 			formatter: Unix_timestamp,
+			onSort: (field,order)=>{
+				console.log(`field: ${field}, order: ${order}`);
+				setSort({
+					dataField: field,
+					order: order
+				});
+			}			
 		},
 		{
 			dataField: "qid",
 			text: componentText.qid,
 			sort: true,
+			onSort: (field,order)=>{
+				console.log(`field: ${field}, order: ${order}`);
+				setSort({
+					dataField: field,
+					order: order
+				});
+			}
 		},
 		{
 			dataField: "displayName",
 			text: componentText.user,
 			sort: true,
+			onSort: (field,order)=>{
+				console.log(`field: ${field}, order: ${order}`);
+				setSort({
+					dataField: field,
+					order: order
+				});
+			}
 		},
 		{
 			dataField: 'delete',
@@ -228,9 +268,7 @@ const QuizReport = (props) => {
 			},
 			events: {
 				onClick: (e, column, columnIndex, row, rowIndex) => {
-					if(window.confirm(`Click Ok to Delete Quiz: ${row.qid}`)){
-						deleteQuizLog(row);
-					}
+					deleteQuizLog(row, rowIndex);
 				},
 			}
 		},
@@ -264,7 +302,7 @@ const QuizReport = (props) => {
 					</Row>
 					<Row>
 						<Col style={quizReportStyle}>
-							<BootstrapTable lang={props.translator.getLangProp()}
+							<BootstrapTable 
 								keyField="qid"
 								headerClasses="bg-primary text-white"
 								striped={true}
@@ -274,18 +312,35 @@ const QuizReport = (props) => {
 								columns={columns}
 								bootstrap4
 								bordered={false}
-								rowStyle={ rowStyle }
 								expandRow={ expandRow }
 								pagination={paginationFactory({
-									sizePerPage: 25,
-									sizePerPageList: [5, 10, 25, 50]
+									sizePerPage: pageSize,
+									sizePerPageList: [5, 10, 25, 50],
+									page: page,
+									onSizePerPageChange: (sizePerPage, page) => {
+										setPageSize(sizePerPage);
+										setPage(page)
+									},
+									onPageChange: (page, sizePerPage) =>{
+										setPageSize(sizePerPage);
+										setPage(page)
+									}
 								})}
+								sort={ {
+									dataField: sort.dataField,
+									order: sort.order
+								  } }
 							/>
 						</Col>
 					</Row>
 					<Row>
 						<Col className="text-center">
 							<Button size="xs" onClick={closeReport} variant="primary">{componentText.closeReport}</Button>
+						</Col>
+					</Row>			
+					<Row>
+						<Col className="text-center">
+							<P>{confirmMsg}</P>
 						</Col>
 					</Row>			
 				</React.Fragment>

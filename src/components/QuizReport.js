@@ -55,7 +55,6 @@ const QuizReport = (props) => {
 	const [reportData, setReportData] = useState(false);
 	const [isLoaded, setIsLoaded] = useState(false);
 	const [error, setError] = useState(null);
-	const [hoverIdx, setHoverIdx] = useState(null);
 	const dispatch = useDispatch();
 	const [componentText,setComponentText] = useState(initialState);
 	const [isTransLoaded,setIsTransLoaded] = useState(false);
@@ -134,30 +133,6 @@ const QuizReport = (props) => {
 		expandByColumnOnly: true
 	};
 
-	const actionFormater = (cell, row, rowIndex, { hoverIdx }) => {
-		if ((hoverIdx !== null || hoverIdx !== undefined) && hoverIdx === rowIndex) {
-		  return (
-			<div
-			  style={ { width: '20px', height: '20px', backgroundColor: process.env.REACT_APP_BLUE } }
-			/>
-		  );
-		}
-		return (
-		  <div
-			style={ { width: '20px', height: '20px' } }
-		  />
-		);
-	}
-	
-	const rowEvents = {
-		onMouseEnter: (e, row, rowIndex) => {
-		  setHoverIdx(rowIndex);
-		},
-		onMouseLeave: () => {
-			setHoverIdx(null);
-		}
-	}
-	
 	const rowStyle = (row, rowIndex) => {
 		row.index = rowIndex;
 		const style = {};
@@ -171,7 +146,37 @@ const QuizReport = (props) => {
 		return style;
 	}
 
+	const deleteQuizLog = async (quizLog) =>{
+		try {
+			setIsLoaded(false);
+			await props.firebase.deleteQuizLog(quizLog);
+			await updateQuizReport();
+		} catch (error) {
+			setError(error);
+		}
+	}
+
+	const updateQuizReport = async () =>{
 	
+		const getQuizLogs = async () => {
+			let QLData = [];
+			let QuizLogData = await props.firebase.getQuizLogs(props.qreport,props.areport,false);
+
+			for (let quizlog in QuizLogData){
+				QLData.push(QuizLogData[quizlog]);
+			}
+			setReportData(QLData);
+		}
+
+		try{
+			await getQuizLogs(props.qreport,props.areport);
+			setIsLoaded(true);
+		} catch(e){
+			setIsLoaded(true);
+			setError(e);
+		}
+	}
+
 	const columns = [
 		{
 			dataField: "qCount",
@@ -211,13 +216,24 @@ const QuizReport = (props) => {
 			sort: true,
 		},
 		{
-			text: '',
-			isDummyField: true,
-			formatter: actionFormater,
-			formatExtraData: { hoverIdx: hoverIdx },
-			headerStyle: { width: '50px' },
-			style: { height: '30px' }
-		}	
+			dataField: 'delete',
+	        isDummyField: true,
+			text: 'Delete',
+			editable: false,
+			formatter: (cellContent, row) => {
+				return (<svg className="bi bi-trash" width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+				<path d="M5.5 5.5A.5.5 0 016 6v6a.5.5 0 01-1 0V6a.5.5 0 01.5-.5zm2.5 0a.5.5 0 01.5.5v6a.5.5 0 01-1 0V6a.5.5 0 01.5-.5zm3 .5a.5.5 0 00-1 0v6a.5.5 0 001 0V6z"/>
+				<path fillRule="evenodd" d="M14.5 3a1 1 0 01-1 1H13v9a2 2 0 01-2 2H5a2 2 0 01-2-2V4h-.5a1 1 0 01-1-1V2a1 1 0 011-1H6a1 1 0 011-1h2a1 1 0 011 1h3.5a1 1 0 011 1v1zM4.118 4L4 4.059V13a1 1 0 001 1h6a1 1 0 001-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z" clipRule="evenodd"/>
+			  </svg>)
+			},
+			events: {
+				onClick: (e, column, columnIndex, row, rowIndex) => {
+					if(window.confirm(`Click Ok to Delete Quiz: ${row.qid}`)){
+						deleteQuizLog(row);
+					}
+				},
+			}
+		},
 	];
 
 	const quizReportStyle={
@@ -259,7 +275,6 @@ const QuizReport = (props) => {
 								bootstrap4
 								bordered={false}
 								rowStyle={ rowStyle }
-								rowEvents={ rowEvents }
 								expandRow={ expandRow }
 								pagination={paginationFactory({
 									sizePerPage: 25,

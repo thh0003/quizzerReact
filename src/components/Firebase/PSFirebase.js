@@ -137,7 +137,6 @@ class Firebase {
 			console.error(`Firebase->deleteQuizFile Call Error: Something went wrong: ${error.message} ${error.stack}`);
 			throw error;
 		}
-
 	}
 
 	setQFile = async (qfile) => {
@@ -194,6 +193,22 @@ class Firebase {
 			}
 		} catch(error){
 			console.error(`Firebase->createQFile Call Error: Something went wrong: ${error.message} ${error.stack}`);
+			throw error;
+		}
+	}
+
+	deleteQuizLog = async (quizLog) =>{
+		try {
+			if (quizLog.uid===null&&quizLog.qid===null){
+				throw (new Error("No Quiz Specified"));
+			} else {
+				let qid = quizLog.qid;
+				//delete all the quizzes which used the quizfile
+				const quizLogRef = this.userdb.collection("qQuizLog");
+				await quizLogRef.doc(qid).delete();
+			}
+		} catch(error){
+			console.error(`Firebase->deleteQuizLog Call Error: Something went wrong: ${error.message} ${error.stack}`);
 			throw error;
 		}
 	}
